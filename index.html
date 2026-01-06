@@ -33,6 +33,26 @@
 </head>
 <body>
   <div class="box">
-    <h1>🦎 Kameleon AI</h1>
-    <p>Projekt wczesnego dostępu</p>
-    <p>Wersja testowa – język PL (działa)</p>
+  <div style="text-align:right; margin-bottom:10px;">
+    <button onclick="setLang('pl')">PL</button>
+    <button onclick="setLang('en')">EN</button>
+  </div>
+
+  <h1 id="title">🦎 Kameleon AI</h1>
+  <p id="line1">Projekt wczesnego dostępu</p>
+  <p id="line2">Wersja testowa – język PL (działa)</p>
+</div>
+
+<script>
+  function setLang(lang) {
+    if (lang === 'pl') {
+      document.getElementById('title').innerText = '🦎 Kameleon AI';
+      document.getElementById('line1').innerText = 'Projekt wczesnego dostępu';
+      document.getElementById('line2').innerText = 'Wersja testowa – język PL (działa)';
+    } else {
+      document.getElementById('title').innerText = '🦎 Kameleon AI';
+      document.getElementById('line1').innerText = 'Early access project';
+      document.getElementById('line2').innerText = 'Test version – English (working)';
+    }
+  }
+</script>
