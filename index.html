@@ -55,4 +55,31 @@
       document.getElementById('line2').innerText = 'Test version – English (working)';
     }
   }
+<script>
+function applyLang(lang) {
+  if (lang === 'pl') {
+    document.getElementById('title').innerText = '🦎 Kameleon AI';
+    document.getElementById('line1').innerText = 'Projekt wczesnego dostępu';
+    document.getElementById('line2').innerText = 'Wersja testowa – język PL (działa)';
+  } else {
+    document.getElementById('title').innerText = '🦎 Kameleon AI';
+    document.getElementById('line1').innerText = 'Early access project';
+    document.getElementById('line2').innerText = 'Test version – English (working)';
+  }
+}
+
+function setLang(lang) {
+  localStorage.setItem('lang', lang);
+  applyLang(lang);
+}
+
+(function () {
+  const savedLang = localStorage.getItem('lang');
+  if (savedLang) {
+    applyLang(savedLang);
+  } else {
+    const browserLang = navigator.language.startsWith('pl') ? 'pl' : 'en';
+    applyLang(browserLang);
+  }
+})();
 </script>
