@@ -44,7 +44,7 @@
 </div>
 
 <script>
-function setLang(lang) {
+function applyLang(lang) {
   if (lang === 'pl') {
     document.getElementById('title').innerText = '🦎 Kameleon AI';
     document.getElementById('line1').innerText = 'Projekt wczesnego dostępu';
@@ -55,4 +55,15 @@ function setLang(lang) {
     document.getElementById('line2').innerText = 'Test version – English (working)';
   }
 }
+
+function setLang(lang) {
+  localStorage.setItem('lang', lang);
+  applyLang(lang);
+}
+
+(function () {
+  const savedLang = localStorage.getItem('lang');
+  const browserLang = navigator.language.startsWith('pl') ? 'pl' : 'en';
+  applyLang(savedLang || browserLang);
+})();
 </script>
