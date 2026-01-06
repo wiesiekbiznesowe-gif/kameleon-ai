@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Kameleon AI</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -15,60 +16,80 @@
       height: 100vh;
       margin: 0;
     }
+
     .box {
-      text-align: center;
-      max-width: 500px;
+      background: #020617;
       padding: 30px;
       border-radius: 12px;
-      background: #020617;
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
       box-shadow: 0 0 30px rgba(0,0,0,0.6);
     }
-    h1 {
+
+    .lang {
+      text-align: right;
       margin-bottom: 10px;
     }
-    p {
-      opacity: 0.9;
+
+    button {
+      padding: 8px 16px;
+      margin: 5px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .start {
+      font-size: 18px;
+      margin-top: 20px;
     }
   </style>
 </head>
+
 <body>
   <div class="box">
-  <div style="text-align:right; margin-bottom:10px;">
-    <button onclick="setLang('pl')">PL</button>
-    <button onclick="setLang('en')">EN</button>
+
+    <div class="lang">
+      <button onclick="setLang('pl')">PL</button>
+      <button onclick="setLang('en')">EN</button>
+    </div>
+
+    <h1 id="title">🦎 Kameleon AI</h1>
+    <p id="line1">Projekt wczesnego dostępu</p>
+    <p id="line2">Wersja testowa – język PL (działa)</p>
+
+    <button class="start" onclick="startApp()">START</button>
+
   </div>
 
-  <h1 id="title">🦎 Kameleon AI</h1>
-  <p id="line1">Projekt wczesnego dostępu</p>
-  <button id="startBtn" onclick="startApp()">START</button>
-</div>
-
-<script>
-function applyLang(lang) {
-  if (lang === 'pl') {
-    document.getElementById('title').innerText = '🦎 Kameleon AI';
-    document.getElementById('line1').innerText = 'Projekt wczesnego dostępu';
-    document.getElementById('line2').innerText = 'Wersja testowa – język PL (działa)';
-  } else {
-    document.getElementById('title').innerText = '🦎 Kameleon AI';
-    document.getElementById('line1').innerText = 'Early access project';
-    document.getElementById('line2').innerText = 'Test version – English (working)';
-  }
-}
-
-function setLang(lang) {
-  localStorage.setItem('lang', lang);
-  applyLang(lang);
-}
-
-(function () {
-  const savedLang = localStorage.getItem('lang');
-  const browserLang = navigator.language.startsWith('pl') ? 'pl' : 'en';
-  applyLang(savedLang || browserLang);
-})();
-</script>
   <script>
-function startApp() {
-  alert("START – aplikacja rusza 🚀");
-}
-</script>
+    function applyLang(lang) {
+      if (lang === 'pl') {
+        document.getElementById('title').innerText = '🦎 Kameleon AI';
+        document.getElementById('line1').innerText = 'Projekt wczesnego dostępu';
+        document.getElementById('line2').innerText = 'Wersja testowa – język PL (działa)';
+      } else {
+        document.getElementById('title').innerText = '🦎 Kameleon AI';
+        document.getElementById('line1').innerText = 'Early access project';
+        document.getElementById('line2').innerText = 'Test version – English (working)';
+      }
+    }
+
+    function setLang(lang) {
+      localStorage.setItem('lang', lang);
+      applyLang(lang);
+    }
+
+    function startApp() {
+      window.location.href = 'app.html';
+    }
+
+    (function () {
+      const savedLang = localStorage.getItem('lang');
+      const browserLang = navigator.language.startsWith('pl') ? 'pl' : 'en';
+      applyLang(savedLang || browserLang);
+    })();
+  </script>
+</body>
+</html>
