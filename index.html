@@ -16,68 +16,59 @@
       height: 100vh;
       margin: 0;
     }
-
     .box {
       text-align: center;
-      max-width: 420px;
+      max-width: 500px;
+      width: 90%;
       padding: 30px;
       border-radius: 14px;
       background: #020617;
       box-shadow: 0 0 30px rgba(0,0,0,0.6);
     }
-
-    h1 {
-      margin-bottom: 10px;
-    }
-
-    p {
-      opacity: 0.9;
-    }
+    h1 { margin-bottom: 10px; }
+    p { opacity: 0.9; }
 
     button {
-      padding: 10px 16px;
-      margin: 6px;
+      padding: 12px 18px;
+      border-radius: 10px;
       border: none;
-      border-radius: 6px;
+      margin: 6px;
       cursor: pointer;
-      font-size: 15px;
+      font-size: 16px;
     }
 
     .lang button {
       background: #e5e7eb;
     }
 
-    #startBtn {
-      width: 100%;
-      margin-top: 16px;
-      font-size: 18px;
-    }
-
-    #chat {
-      display: none;
-      margin-top: 20px;
-      text-align: left;
-    }
-
-    #messages {
-      background: #020617;
-      padding: 10px;
-      height: 200px;
-      overflow-y: auto;
-      border-radius: 6px;
-      margin-bottom: 10px;
-      font-size: 14px;
-    }
-
-    #input {
-      width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      border: none;
-    }
-
     .mode button {
-      font-size: 13px;
+      background: #1e293b;
+      color: #e5e7eb;
+    }
+
+    .start {
+      background: #e5e7eb;
+      font-weight: bold;
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      margin-top: 15px;
+      font-size: 16px;
+    }
+
+    .response {
+      margin-top: 15px;
+      text-align: left;
+      background: #020617;
+      padding: 15px;
+      border-radius: 10px;
+      min-height: 60px;
     }
   </style>
 </head>
@@ -91,98 +82,107 @@
     </div>
 
     <h1 id="title">🦎 Kameleon AI</h1>
-    <p id="line1">Projekt wczesnego dostępu</p>
-    <p id="line2">Panel aplikacji – gotowy do działania</p>
+    <p id="subtitle">Projekt wczesnego dostępu</p>
+    <p id="status">Panel aplikacji – gotowy do działania</p>
 
-    <button id="startBtn" onclick="startApp()">START</button>
-
-    <div class="mode" id="mode" style="display:none;">
+    <div class="mode">
       <button onclick="setMode('agent')">🧠 Agent</button>
       <button onclick="setMode('chat')">💬 Chat</button>
       <button onclick="setMode('hybrid')">🔀 Hybryda</button>
     </div>
 
-    <div id="chat">
-      <div id="messages"></div>
-      <input id="input" placeholder="Napisz wiadomość..." />
-    </div>
+    <button class="start" onclick="startApp()">START</button>
+
+    <input id="userInput" placeholder="Napisz wiadomość..." onkeydown="if(event.key==='Enter') processInput()" />
+
+    <div class="response" id="response"></div>
 
   </div>
 
 <script>
-let LANG = localStorage.getItem("lang") || "pl";
-let MODE = "hybrid";
+  let currentLang = 'pl';
+  let currentMode = 'agent';
 
-const texts = {
-  pl: {
-    title: "🦎 Kameleon AI",
-    line1: "Projekt wczesnego dostępu",
-    line2: "Panel aplikacji – gotowy do działania",
-    start: "START",
-    placeholder: "Napisz wiadomość..."
-  },
-  en: {
-    title: "🦎 Kameleon AI",
-    line1: "Early access project",
-    line2: "Application panel – ready",
-    start: "START",
-    placeholder: "Type a message..."
+  function setLang(lang) {
+    currentLang = lang;
+    localStorage.setItem('lang', lang);
+    renderText();
   }
-};
 
-function setLang(lang) {
-  LANG = lang;
-  localStorage.setItem("lang", lang);
-  applyLang();
-}
+  function setMode(mode) {
+    currentMode = mode;
+    localStorage.setItem('mode', mode);
+    document.getElementById('response').innerText =
+      'Tryb ustawiony: ' + mode.toUpperCase();
+  }
 
-function applyLang() {
-  document.getElementById("title").innerText = texts[LANG].title;
-  document.getElementById("line1").innerText = texts[LANG].line1;
-  document.getElementById("line2").innerText = texts[LANG].line2;
-  document.getElementById("startBtn").innerText = texts[LANG].start;
-  document.getElementById("input").placeholder = texts[LANG].placeholder;
-}
+  function startApp() {
+    document.getElementById('response').innerText =
+      currentLang === 'pl'
+        ? 'AI uruchomiona 🚀'
+        : 'AI started 🚀';
+  }
 
-function startApp() {
-  document.getElementById("startBtn").style.display = "none";
-  document.getElementById("chat").style.display = "block";
-  document.getElementById("mode").style.display = "block";
-  addMessage("ai", "Aplikacja uruchomiona 🚀");
-}
+  function processInput() {
+    const input = document.getElementById('userInput').value.trim();
+    if (!input) return;
 
-function setMode(mode) {
-  MODE = mode;
-  addMessage("ai", "Tryb: " + MODE.toUpperCase());
-}
+    let memory = JSON.parse(localStorage.getItem('memory') || '[]');
+    memory.push(input);
+    localStorage.setItem('memory', JSON.stringify(memory));
 
-function addMessage(who, text) {
-  const box = document.getElementById("messages");
-  const div = document.createElement("div");
-  div.innerText = (who === "ai" ? "AI: " : "Ty: ") + text;
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-}
+    let output = '';
 
-document.getElementById("input").addEventListener("keydown", function(e) {
-  if (e.key === "Enter" && this.value.trim()) {
-    const text = this.value;
-    this.value = "";
-    addMessage("user", text);
-
-    setTimeout(() => {
-      if (MODE === "chat") {
-        addMessage("ai", "Rozmowa: " + text);
-      } else if (MODE === "agent") {
-        addMessage("ai", "Zadanie przyjęte. Analizuję: " + text);
+    if (currentMode === 'agent') {
+      if (input.toLowerCase().includes('lista')) {
+        output = '🧠 Agent: Wykryto zadanie → tryb wykonawczy';
+      } else if (input.toLowerCase().includes('zrób')) {
+        output = '🧠 Agent: Rozpoczynam realizację polecenia';
       } else {
-        addMessage("ai", "Hybryda – myślę i działam: " + text);
+        output = '🧠 Agent: Analizuję intencję użytkownika';
       }
-    }, 400);
-  }
-});
+    }
 
-applyLang();
+    if (currentMode === 'chat') {
+      output = '💬 Chat: Odpowiadam konwersacyjnie';
+    }
+
+    if (currentMode === 'hybrid') {
+      output =
+        '🔀 Hybryda:\n' +
+        'Analiza → ' +
+        input +
+        '\nPamięć: ' +
+        memory.length +
+        ' wpisów';
+    }
+
+    document.getElementById('response').innerText = output;
+    document.getElementById('userInput').value = '';
+  }
+
+  function renderText() {
+    if (currentLang === 'pl') {
+      title.innerText = '🦎 Kameleon AI';
+      subtitle.innerText = 'Projekt wczesnego dostępu';
+      status.innerText = 'Panel aplikacji – gotowy do działania';
+      userInput.placeholder = 'Napisz wiadomość...';
+    } else {
+      title.innerText = '🦎 Kameleon AI';
+      subtitle.innerText = 'Early access project';
+      status.innerText = 'Application panel – ready';
+      userInput.placeholder = 'Type a message...';
+    }
+  }
+
+  (function init() {
+    const savedLang = localStorage.getItem('lang');
+    const savedMode = localStorage.getItem('mode');
+    if (savedLang) currentLang = savedLang;
+    if (savedMode) currentMode = savedMode;
+    renderText();
+  })();
 </script>
+
 </body>
 </html>
