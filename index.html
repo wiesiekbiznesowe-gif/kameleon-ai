@@ -1,133 +1,139 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Kameleon AI</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kameleon AI</title>
 
-<style>
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#0f172a;
-  color:#e5e7eb;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-}
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #0b1220, #0f172a);
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
 
-.app{
-  width:100%;
-  max-width:420px;
-  background:#020617;
-  border-radius:16px;
-  padding:20px;
-  box-shadow:0 20px 40px rgba(0,0,0,.5);
-}
+    .app {
+      width: 100%;
+      max-width: 420px;
+      background: #020617;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    }
 
-h1{
-  text-align:center;
-  margin-bottom:10px;
-}
+    h1 {
+      text-align: center;
+      margin-bottom: 12px;
+    }
 
-textarea{
-  width:100%;
-  min-height:90px;
-  border-radius:10px;
-  border:none;
-  padding:10px;
-  font-size:16px;
-  resize:none;
-}
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      border-radius: 12px;
+      border: none;
+      padding: 12px;
+      font-size: 16px;
+      resize: none;
+    }
 
-button{
-  width:100%;
-  margin-top:10px;
-  padding:12px;
-  border-radius:10px;
-  border:none;
-  font-size:16px;
-  cursor:pointer;
-  background:#2563eb;
-  color:white;
-}
+    button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      font-size: 16px;
+      font-weight: bold;
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+    }
 
-.chat{
-  margin-top:15px;
-  max-height:300px;
-  overflow-y:auto;
-  font-size:14px;
-}
+    .chat {
+      margin-top: 16px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-size: 14px;
+    }
 
-.msg{
-  margin-top:8px;
-}
+    .msg {
+      margin-top: 10px;
+    }
 
-.user{ color:#93c5fd; }
-.ai{ color:#86efac; }
-.fix{ color:#22c55e; font-style:italic; }
-</style>
+    .user {
+      color: #93c5fd;
+    }
+
+    .fix {
+      color: #22c55e;
+    }
+
+    .ai {
+      color: #a5b4fc;
+    }
+  </style>
 </head>
 
 <body>
-<div class="app">
-  <h1>🦎 Kameleon AI</h1>
+  <div class="app">
+    <h1>🦎 Kameleon AI</h1>
 
-  <textarea id="input" placeholder="Napisz wiadomość..."></textarea>
-  <button onclick="send()">START</button>
+    <textarea id="input" placeholder="Napisz wiadomość..."></textarea>
+    <button onclick="send()">START</button>
 
-  <div id="chat" class="chat"></div>
-</div>
+    <div id="chat" class="chat"></div>
+  </div>
 
-<script>
-const input = document.getElementById("input");
-const chat  = document.getElementById("chat");
+  <script>
+    const input = document.getElementById("input");
+    const chat = document.getElementById("chat");
 
-/* PROSTA NORMALIZACJA – NIE SŁOWO PO SŁOWIE */
-function poprawTekst(text){
-  let t = text.trim().toLowerCase();
+    function poprawTekst(text) {
+      let t = text.trim();
+      if (!t) return "";
 
-  t = t.replace(/\s+/g," ");
+      t = t.charAt(0).toUpperCase() + t.slice(1);
+      if (!/[.!?]$/.test(t)) t += ".";
 
-  const mapa = [
-    [/czesc|cześć|czesć/g,"Cześć"],
-    [/jak se|jak sie|jak sje/g,"jak się"],
-    [/masz|mos|mase|mosz|mocze|moce/g,"masz"]
-  ];
+      t = t
+        .replace(/\bczesc\b/gi, "cześć")
+        .replace(/\bjak sie masz\b/gi, "jak się masz")
+        .replace(/\bnapis cos\b/gi, "napisz coś");
 
-  mapa.forEach(r => t = t.replace(r[0], r[1]));
+      return t;
+    }
 
-  return t.charAt(0).toUpperCase() + t.slice(1);
-}
+    function odpowiedzLogicznie(text) {
+      if (/czesc|cześć/i.test(text)) {
+        return "Cześć 🙂 Jak mogę Ci pomóc?";
+      }
 
-/* LOGICZNA ODPOWIEDŹ */
-function odpowiedz(text){
-  if(text.includes("jak się masz"))
-    return "Mam się dobrze 🙂 A jak mogę Ci pomóc?";
+      if (/napisz|powiedz|opowiedz/i.test(text)) {
+        return "Jasne 🙂 Napisz proszę dokładniej, o co chodzi.";
+      }
 
-  if(text.includes("świetnie"))
-    return "Super 👍 Co chciałbyś zrobić dalej?";
+      return "Rozumiem. Opisz proszę temat trochę szerzej 🙂";
+    }
 
-  if(text.length < 4)
-    return "Możesz napisać trochę więcej?";
+    function send() {
+      if (!input.value.trim()) return;
 
-  return "Rozumiem. Powiedz proszę dokładniej, o co chodzi.";
-}
+      const raw = input.value;
+      const fixed = poprawTekst(raw);
+      const reply = odpowiedzLogicznie(fixed);
 
-function send(){
-  if(!input.value.trim()) return;
+      chat.innerHTML += `<div class="msg user">&gt; ${raw}</div>`;
+      chat.innerHTML += `<div class="msg fix">✓ Poprawiona pisownia: ${fixed}</div>`;
+      chat.innerHTML += `<div class="msg ai">🤖 ${reply}</div>`;
 
-  const raw = input.value;
-  const fixed = poprawTekst(raw);
-
-  chat.innerHTML += `<div class="msg user">&gt; ${raw}</div>`;
-  chat.innerHTML += `<div class="msg fix">✓ Poprawiona pisownia: ${fixed}</div>`;
-  chat.innerHTML += `<div class="msg ai">🤖 ${odpowiedz(fixed)}</div>`;
-
-  input.value="";
-  chat.scrollTop = chat.scrollHeight;
-}
-</script>
+      input.value = "";
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
 </body>
 </html>
