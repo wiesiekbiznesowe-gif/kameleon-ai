@@ -6,57 +6,14 @@
 <title>Kameleon AI</title>
 
 <style>
-body{
-  margin:0;
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:#07172a;
-  font-family:Arial,sans-serif;
-  color:#e5e7eb;
-}
-.box{
-  width:90%;
-  max-width:420px;
-  background:#020617;
-  border-radius:18px;
-  padding:26px;
-  text-align:center;
-  box-shadow:0 30px 60px rgba(0,0,0,.6);
-}
-button{
-  padding:10px 16px;
-  margin:4px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-}
-.lang button{ background:#e5e7eb; }
-.mode button{ background:#1e293b; color:#e5e7eb; }
-.start{
-  width:100%;
-  padding:14px;
-  font-size:18px;
-  margin-top:12px;
-  background:#e5e7eb;
-}
-input{
-  width:100%;
-  margin-top:12px;
-  padding:12px;
-  border-radius:10px;
-  border:none;
-}
-.response{
-  margin-top:14px;
-  background:#020617;
-  padding:12px;
-  border-radius:10px;
-  min-height:120px;
-  text-align:left;
-  white-space:pre-line;
-}
+body{margin:0;height:100vh;display:flex;justify-content:center;align-items:center;background:#07172a;font-family:Arial;color:#e5e7eb}
+.box{width:90%;max-width:420px;background:#020617;border-radius:18px;padding:26px;text-align:center;box-shadow:0 30px 60px rgba(0,0,0,.6)}
+button{padding:10px 16px;margin:4px;border:none;border-radius:10px;cursor:pointer}
+.lang button{background:#e5e7eb}
+.mode button{background:#1e293b;color:#e5e7eb}
+.start{width:100%;padding:14px;font-size:18px;margin-top:12px;background:#e5e7eb}
+input{width:100%;margin-top:12px;padding:12px;border-radius:10px;border:none}
+.response{margin-top:14px;background:#020617;padding:12px;border-radius:10px;min-height:140px;white-space:pre-line;text-align:left}
 </style>
 </head>
 
@@ -68,7 +25,7 @@ input{
 <button onclick="setLang('en')">EN</button>
 </div>
 
-<h2 id="title">🦎 Kameleon AI</h2>
+<h2>🦎 Kameleon AI</h2>
 <p id="subtitle">Projekt wczesnego dostępu</p>
 <p id="status">Panel aplikacji – gotowy do działania</p>
 
@@ -86,68 +43,53 @@ input{
 </div>
 
 <script>
-let lang = localStorage.getItem('lang') || 'pl';
-let mode = localStorage.getItem('mode') || 'agent';
-let memory = JSON.parse(localStorage.getItem('memory') || '[]');
+let lang=localStorage.getItem('lang')||'pl';
+let mode=localStorage.getItem('mode')||'agent';
+let memory=JSON.parse(localStorage.getItem('memory')||'[]');
 
-function saveMemory(){
-  localStorage.setItem('memory', JSON.stringify(memory));
-}
+function save(){localStorage.setItem('memory',JSON.stringify(memory));}
 
-function setLang(l){
-  lang=l;
-  localStorage.setItem('lang',l);
-  render();
-}
-
-function setMode(m){
-  mode=m;
-  localStorage.setItem('mode',m);
-  out.innerText=(lang==='pl'?'Tryb: ':'Mode: ')+m.toUpperCase();
-}
+function setLang(l){lang=l;localStorage.setItem('lang',l);}
+function setMode(m){mode=m;localStorage.setItem('mode',m);out.innerText='Tryb: '+m.toUpperCase();}
 
 function startAI(){
-  out.innerText=lang==='pl'
-    ?'AI uruchomiona. Historia załadowana.\n'
-    :'AI started. History loaded.\n';
-  memory.forEach(m=>out.innerText+=m+"\n");
+  out.innerText='AI gotowa. Historia:\n';
+  memory.forEach(m=>out.innerText+=m+'\n');
+}
+
+function intelligentReply(text){
+  text=text.toLowerCase();
+
+  if(mode==='chat'){
+    if(text.includes('jak')) return '💬 Dobrze 🙂 A Ty?';
+    if(text.includes('co')) return '💬 Opowiedz więcej.';
+    return '💬 Rozumiem. Kontynuuj.';
+  }
+
+  if(mode==='agent'){
+    if(text.includes('zrób')||text.includes('wykonaj'))
+      return '🧠 Plan:\n1. Analiza\n2. Działanie\n3. Raport';
+    if(text.includes('jak'))
+      return '🧠 Analiza pytania. Przygotowuję odpowiedź.';
+    return '🧠 Zadanie zapisane. Oczekuję dalszych danych.';
+  }
+
+  if(mode==='hybryda'){
+    return '🔀 Analiza:\nCel rozpoznany.\nOdpowiedź: działamy krok po kroku.';
+  }
 }
 
 function send(){
-  const text=input.value.trim();
-  if(!text) return;
+  const t=input.value.trim();
+  if(!t)return;
 
-  let reply='';
-  if(mode==='agent'){
-    reply='🧠 Analiza zadania...\nZadanie zapisane i wykonywane.';
-  }
-  if(mode==='chat'){
-    reply='💬 Odpowiadam:\n'+text;
-  }
-  if(mode==='hybryda'){
-    reply='🔀 Analiza + rozmowa:\nIntencja OK. Odpowiedź gotowa.';
-  }
-
-  const entry="> "+text+"\n"+reply+"\n";
+  const r=intelligentReply(t);
+  const entry='> '+t+'\n'+r+'\n';
   memory.push(entry);
-  saveMemory();
-
+  save();
   out.innerText+=entry;
   input.value='';
 }
-
-function render(){
-  if(lang==='pl'){
-    subtitle.innerText='Projekt wczesnego dostępu';
-    status.innerText='Panel aplikacji – gotowy do działania';
-    input.placeholder='Napisz wiadomość…';
-  }else{
-    subtitle.innerText='Early access project';
-    status.innerText='Application panel – ready';
-    input.placeholder='Type a message…';
-  }
-}
-render();
 </script>
 
 </body>
