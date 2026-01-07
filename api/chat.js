@@ -1,31 +1,36 @@
+let conversationHistory = [
+  {
+    role: "system",
+    content:
+      "Jesteś inteligentnym, pomocnym asystentem AI. Rozmawiasz naturalnie po polsku. Pamiętasz kontekst rozmowy i nie gubisz tematu. Odpowiadasz konkretnie, bez lania wody. Jeśli użytkownik pisze potocznie lub z błędami – rozumiesz sens i odpowiadasz normalnie. Nie moralizujesz, nie oceniasz, nie pouczasz."
+  }
+];
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const { message, history } = req.body;
+    const { message } = req.body;
 
     if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "Brak wiadomości" });
     }
 
-    const messages = [
-      {
-        role: "system",
-        content:
-          "Jesteś inteligentnym, konkretnym asystentem AI. " +
-          "Pamiętasz kontekst rozmowy. " +
-          "Jeśli użytkownik pyta 'gdzie go obejrzę', odnosisz się do ostatniego omawianego filmu. " +
-          "Nie pytasz w kółko o gatunek, jeśli już padł. " +
-          "Odpowiadasz naturalnie, po ludzku, po polsku."
-      },
-      ...(Array.isArray(history) ? history : []),
-      {
-        role: "user",
-        content: message
-      }
-    ];
+    // Dodaj wiadomość użytkownika do historii
+    conversationHistory.push({
+      role: "user",
+      content: message
+    });
+
+    // Ograniczenie historii (żeby nie rosła w nieskończoność)
+    if (conversationHistory.length > 20) {
+      conversationHistory = [
+        conversationHistory[0], // system
+        ...conversationHistory.slice(-18)
+      ];
+    }
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -35,25 +40,33 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
-        messages,
+        messages: conversationHistory,
         temperature: 0.7
       })
     });
 
     const data = await response.json();
 
-    if (!data.choices || !data.choices[0]) {
+    if (!data.choices || !data.choices[0]?.message?.content) {
       return res.status(500).json({ error: "Brak odpowiedzi AI" });
     }
 
-    return res.status(200).json({
-      reply: data.choices[0].message.content
+    const aiReply = data.choices[0].message.content;
+
+    // Dodaj odpowiedź AI do historii
+    conversationHistory.push({
+      role: "assistant",
+      content: aiReply
     });
 
-  } catch (err) {
+    return res.status(200).json({
+      reply: aiReply
+    });
+
+  } catch (error) {
     return res.status(500).json({
       error: "Błąd serwera",
-      details: err.message
+      details: error.message
     });
   }
 }
