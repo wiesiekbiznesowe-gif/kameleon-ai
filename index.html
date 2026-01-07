@@ -18,78 +18,77 @@
     }
 
     .box {
-      background: #020617;
-      padding: 30px;
-      border-radius: 12px;
       text-align: center;
       max-width: 500px;
-      width: 100%;
+      padding: 30px;
+      border-radius: 12px;
+      background: #020617;
       box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    }
+
+    button {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      margin: 5px;
+      font-size: 14px;
     }
 
     .lang {
       text-align: right;
       margin-bottom: 10px;
     }
-
-    button {
-      padding: 8px 16px;
-      margin: 5px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-    }
-
-    .start {
-      font-size: 18px;
-      margin-top: 20px;
-    }
   </style>
 </head>
 
 <body>
-  <div class="box">
 
-    <div class="lang">
-      <button onclick="setLang('pl')">PL</button>
-      <button onclick="setLang('en')">EN</button>
-    </div>
-
-    <h1 id="title">🦎 Kameleon AI</h1>
-    <p id="line1">Projekt wczesnego dostępu</p>
-    <p id="line2">Wersja testowa – język PL (działa)</p>
-
-    <button class="start" onclick="startApp()">START</button>
-
+<div class="box" id="app">
+  <div class="lang">
+    <button onclick="setLang('pl')">PL</button>
+    <button onclick="setLang('en')">EN</button>
   </div>
 
-  <script>
-    function applyLang(lang) {
-      if (lang === 'pl') {
-        document.getElementById('title').innerText = '🦎 Kameleon AI';
-        document.getElementById('line1').innerText = 'Projekt wczesnego dostępu';
-        document.getElementById('line2').innerText = 'Wersja testowa – język PL (działa)';
-      } else {
-        document.getElementById('title').innerText = '🦎 Kameleon AI';
-        document.getElementById('line1').innerText = 'Early access project';
-        document.getElementById('line2').innerText = 'Test version – English (working)';
-      }
-    }
+  <h1 id="title">🦎 Kameleon AI</h1>
+  <p id="line1">Projekt wczesnego dostępu</p>
+  <p id="line2">Wersja testowa – język PL (działa)</p>
 
-    function setLang(lang) {
-      localStorage.setItem('lang', lang);
-      applyLang(lang);
-    }
+  <button onclick="startApp()">START</button>
+</div>
 
-    function startApp() {
-      window.location.href = 'app.html';
+<script>
+  function applyLang(lang) {
+    if (lang === 'pl') {
+      document.getElementById('title').innerText = '🦎 Kameleon AI';
+      document.getElementById('line1').innerText = 'Projekt wczesnego dostępu';
+      document.getElementById('line2').innerText = 'Wersja testowa – język PL (działa)';
+    } else {
+      document.getElementById('title').innerText = '🦎 Kameleon AI';
+      document.getElementById('line1').innerText = 'Early access project';
+      document.getElementById('line2').innerText = 'Test version – English (working)';
     }
+  }
 
-    (function () {
-      const savedLang = localStorage.getItem('lang');
-      const browserLang = navigator.language.startsWith('pl') ? 'pl' : 'en';
-      applyLang(savedLang || browserLang);
-    })();
-  </script>
+  function setLang(lang) {
+    localStorage.setItem('lang', lang);
+    applyLang(lang);
+  }
+
+  (function () {
+    const savedLang = localStorage.getItem('lang');
+    const browserLang = navigator.language.startsWith('pl') ? 'pl' : 'en';
+    applyLang(savedLang || browserLang);
+  })();
+
+  function startApp() {
+    document.getElementById('app').innerHTML = `
+      <h1>🦎 Kameleon AI</h1>
+      <p>Panel aplikacji</p>
+      <p>Tu zacznie się prawdziwe działanie 🚀</p>
+    `;
+  }
+</script>
+
 </body>
 </html>
