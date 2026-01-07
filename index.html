@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Kameleon AI</title>
 
 <style>
@@ -16,127 +16,127 @@ body{
   align-items:center;
   min-height:100vh;
 }
-.app{
-  width:100%;
-  max-width:430px;
+.box{
+  width:95%;
+  max-width:420px;
   background:#020617;
-  padding:24px;
-  border-radius:18px;
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 0 30px rgba(0,0,0,.6);
 }
-h1{text-align:center;}
-.subtitle{text-align:center;opacity:.8;font-size:14px;}
-.modes{display:flex;gap:10px;justify-content:center;margin:16px 0;}
+h1{text-align:center;margin:10px 0}
+p{text-align:center;opacity:.8}
+
 .modes button{
+  margin:5px;
   padding:10px 14px;
   border-radius:12px;
   border:none;
+  cursor:pointer;
   background:#1e293b;
   color:#e5e7eb;
 }
-.modes button.active{background:#2563eb;}
-textarea{
+.modes button.active{background:#2563eb}
+
+input{
   width:100%;
-  border-radius:12px;
   padding:12px;
-  font-size:16px;
+  border-radius:10px;
   border:none;
   margin-top:10px;
+  font-size:16px;
 }
+
 button.start{
   width:100%;
-  margin-top:12px;
+  margin-top:10px;
   padding:14px;
-  font-size:18px;
-  border-radius:14px;
+  border-radius:12px;
   border:none;
-  background:#e5e7eb;
-  color:#020617;
   font-weight:bold;
+  font-size:16px;
+  cursor:pointer;
 }
-.chat{
-  margin-top:20px;
-  white-space:pre-wrap;
-  font-size:15px;
+
+#chat{
+  margin-top:15px;
+  background:#020617;
+  padding:10px;
+  border-radius:10px;
+  min-height:120px;
 }
+.msg{margin-bottom:10px}
+.user{opacity:.9}
+.fix{color:#22c55e}
+.ai{color:#38bdf8}
 </style>
 </head>
 
 <body>
-<div class="app">
-<h1>🦎 Kameleon AI</h1>
-<div class="subtitle">
-Projekt wczesnego dostępu<br>
-Panel aplikacji – gotowy do działania
-</div>
+<div class="box">
+  <h1>🦎 Kameleon AI</h1>
+  <p>Projekt wczesnego dostępu</p>
 
-<div class="modes">
-<button class="active">🧠 Agent</button>
-<button>💬 Chat</button>
-<button>🔀 Hybryda</button>
-</div>
+  <div class="modes">
+    <button onclick="setMode('agent')" class="active" id="m-agent">Agent</button>
+    <button onclick="setMode('chat')" id="m-chat">Chat</button>
+    <button onclick="setMode('hybryda')" id="m-hybryda">Hybryda</button>
+  </div>
 
-<textarea id="input" placeholder="Napisz wiadomość..."></textarea>
-<button class="start" onclick="process()">START</button>
-<div class="chat" id="chat"></div>
+  <input id="input" placeholder="Napisz wiadomość..." />
+  <button class="start" onclick="send()">START</button>
+
+  <div id="chat"></div>
 </div>
 
 <script>
-function poprawZdanie(text){
-  let t = text.toLowerCase();
+let mode='agent';
 
-  // ETAP 1 – agresywna normalizacja
-  const mapa = {
-    "czesc":"cześć",
-    "jok":"jak",
-    "jkg":"jak",
-    "jzk":"jak",
-    "jk":"jak",
-    "jag":"jak",
-    "se":"się",
-    "sie":"się",
-    "sje":"się",
-    "mos":"masz",
-    "mose":"masz",
-    "moce":"masz",
-    "mase":"masz",
-    "mas":"masz"
-  };
-
-  Object.entries(mapa).forEach(([b,p])=>{
-    t = t.replace(new RegExp("\\b"+b+"\\b","g"),p);
-  });
-
-  // ETAP 2 – sens zdania
-  if (
-    t.includes("cześć") &&
-    t.includes("jak") &&
-    t.includes("się") &&
-    t.includes("masz")
-  ){
-    t = "cześć, jak się masz";
-  }
-
-  // ETAP 3 – format
-  t = t.charAt(0).toUpperCase() + t.slice(1);
-  if(!/[.!?]$/.test(t)) t += "?";
-
-  return t;
+function setMode(m){
+  mode=m;
+  document.querySelectorAll('.modes button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('m-'+m).classList.add('active');
 }
 
-function process(){
-  const input=document.getElementById("input");
-  const chat=document.getElementById("chat");
-  const original=input.value.trim();
-  if(!original) return;
+function popraw(txt){
+  const map={
+    'jag':'jak','se':'się','mos':'masz','jk':'jak','mase':'masz',
+    'moc':'masz','moce':'masz'
+  };
+  let out=txt.toLowerCase().split(' ').map(w=>map[w]||w).join(' ');
+  out=out.charAt(0).toUpperCase()+out.slice(1);
+  if(!out.endsWith('?')) out+='?';
+  return out.replace('jak sie','jak się');
+}
 
-  const corrected=poprawZdanie(original);
+function odpowiedz(){
+  return "Mam się dobrze 🙂 A jak mogę Ci pomóc?";
+}
 
-  chat.innerText +=
-    "> " + original + "\n" +
-    "✓ Poprawiona pisownia:\n" +
-    corrected + "\n\n";
+function send(){
+  const input=document.getElementById('input');
+  if(!input.value.trim()) return;
 
-  input.value="";
+  const chat=document.getElementById('chat');
+
+  const user=document.createElement('div');
+  user.className='msg user';
+  user.innerHTML='> '+input.value;
+  chat.appendChild(user);
+
+  const fix=document.createElement('div');
+  fix.className='msg fix';
+  const poprawione=popraw(input.value);
+  fix.innerHTML='✓ Poprawiona pisownia:<br>'+poprawione;
+  chat.appendChild(fix);
+
+  const ai=document.createElement('div');
+  ai.className='msg ai';
+  ai.innerHTML='🤖 '+odpowiedz();
+  chat.appendChild(ai);
+
+  input.value='';
+  chat.scrollTop=chat.scrollHeight;
 }
 </script>
 </body>
