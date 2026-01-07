@@ -73,9 +73,13 @@ function popraw(text){
 let t=text.toLowerCase().trim();
 
 const mapa={
-"ces":"cześć","ceś":"cześć","ps":"po prostu",
-"dis":"dziś","robocie":"pracy","robota":"praca",
-"nie":"niej","u nie":"u niej"
+"ces":"cześć","ceś":"cześć",
+"dis":"dziś","robota":"praca","robocie":"pracy",
+"u nie":"u niej",
+
+/* produkty / pojęcia */
+"nmiut":"miód","miut":"miód","miod":"miód",
+"psceli":"pszczeli","pczeli":"pszczeli","pszceli":"pszczeli"
 };
 
 Object.keys(mapa).forEach(k=>{
@@ -90,19 +94,16 @@ return t;
 function odpowiedz(t){
 t=t.toLowerCase();
 
+if(t.includes("miód") && t.includes("pszczeli"))
+return "Tak 🙂 Chodzi Ci o miód pszczeli? Jeśli chcesz, mogę powiedzieć czym się różni od sztucznego.";
+
+if(t.includes("miód"))
+return "Miód jest naturalnym produktem 🍯 Chcesz wiedzieć coś konkretnego?";
+
 if(t.includes("cześć"))
-return "Cześć 🙂 Jak mija dzień?";
+return "Cześć 🙂 Jak mogę pomóc?";
 
-if(t.includes("u niej") && (t.includes("pracy") || t.includes("praca")))
-return "Rozumiem 🙂 Pytasz, czy będziesz dziś u niej w pracy?";
-
-if(t.includes("co dziś jemy"))
-return "Możemy coś zaplanować 🍝🥗 Masz ochotę na coś konkretnego?";
-
-if(t.includes("co dziś robimy") || t.includes("co dziś"))
-return "Możemy coś zaplanować 🙂 Co masz na myśli?";
-
-return "Rozumiem 🙂 Napisz trochę więcej, a odpowiem konkretnie.";
+return "Rozumiem 🙂 Jeśli chcesz, napisz trochę dokładniej.";
 }
 
 function send(){
