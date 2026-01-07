@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kameleon AI</title>
 
 <style>
 body{
   margin:0;
-  font-family:Arial, sans-serif;
+  font-family:Arial,sans-serif;
   background:#0f172a;
   color:#e5e7eb;
   display:flex;
@@ -47,7 +47,7 @@ input{
   font-size:16px;
 }
 
-button.start{
+button{
   width:100%;
   margin-top:10px;
   padding:14px;
@@ -63,8 +63,9 @@ button.start{
   background:#020617;
   padding:10px;
   border-radius:10px;
-  min-height:120px;
+  min-height:140px;
 }
+
 .msg{margin-bottom:10px}
 .user{opacity:.9}
 .fix{color:#22c55e}
@@ -75,42 +76,49 @@ button.start{
 <body>
 <div class="box">
   <h1>🦎 Kameleon AI</h1>
-  <p>Projekt wczesnego dostępu</p>
+  <p>Panel aplikacji – gotowy do działania</p>
 
   <div class="modes">
-    <button onclick="setMode('agent')" class="active" id="m-agent">Agent</button>
-    <button onclick="setMode('chat')" id="m-chat">Chat</button>
-    <button onclick="setMode('hybryda')" id="m-hybryda">Hybryda</button>
+    <button class="active">Agent</button>
+    <button>Chat</button>
+    <button>Hybryda</button>
   </div>
 
   <input id="input" placeholder="Napisz wiadomość..." />
-  <button class="start" onclick="send()">START</button>
+  <button onclick="send()">START</button>
 
   <div id="chat"></div>
 </div>
 
 <script>
-let mode='agent';
-
-function setMode(m){
-  mode=m;
-  document.querySelectorAll('.modes button').forEach(b=>b.classList.remove('active'));
-  document.getElementById('m-'+m).classList.add('active');
-}
-
 function popraw(txt){
   const map={
-    'jag':'jak','se':'się','mos':'masz','jk':'jak','mase':'masz',
-    'moc':'masz','moce':'masz'
+    'jag':'jak','se':'się','mos':'masz','jk':'jak',
+    'mase':'masz','moce':'masz','moc':'masz'
   };
   let out=txt.toLowerCase().split(' ').map(w=>map[w]||w).join(' ');
+  out=out.replace('jak sie','jak się');
   out=out.charAt(0).toUpperCase()+out.slice(1);
-  if(!out.endsWith('?')) out+='?';
-  return out.replace('jak sie','jak się');
+  if(!out.endsWith('?') && out.startsWith('Jak')) out+='?';
+  return out;
 }
 
-function odpowiedz(){
-  return "Mam się dobrze 🙂 A jak mogę Ci pomóc?";
+function odpowiedz(txt){
+  txt=txt.toLowerCase();
+
+  if(txt.includes('cześć')||txt.includes('hej'))
+    return 'Cześć 🙂 Jak się masz?';
+
+  if(txt.includes('świetnie')||txt.includes('dobrze'))
+    return 'Super! 👍 Co chciałbyś zrobić dalej?';
+
+  if(txt.includes('powiedz')||txt.includes('opowiedz'))
+    return 'Jasne 🙂 O czym chcesz porozmawiać?';
+
+  if(txt.length<4)
+    return 'Możesz napisać trochę więcej?';
+
+  return 'Rozumiem. Co dokładnie mam z tym zrobić?';
 }
 
 function send(){
@@ -119,21 +127,12 @@ function send(){
 
   const chat=document.getElementById('chat');
 
-  const user=document.createElement('div');
-  user.className='msg user';
-  user.innerHTML='> '+input.value;
-  chat.appendChild(user);
+  chat.innerHTML+=`<div class="msg user">&gt; ${input.value}</div>`;
 
-  const fix=document.createElement('div');
-  fix.className='msg fix';
-  const poprawione=popraw(input.value);
-  fix.innerHTML='✓ Poprawiona pisownia:<br>'+poprawione;
-  chat.appendChild(fix);
+  const fixed=popraw(input.value);
+  chat.innerHTML+=`<div class="msg fix">✓ Poprawiona pisownia:<br>${fixed}</div>`;
 
-  const ai=document.createElement('div');
-  ai.className='msg ai';
-  ai.innerHTML='🤖 '+odpowiedz();
-  chat.appendChild(ai);
+  chat.innerHTML+=`<div class="msg ai">🤖 ${odpowiedz(fixed)}</div>`;
 
   input.value='';
   chat.scrollTop=chat.scrollHeight;
