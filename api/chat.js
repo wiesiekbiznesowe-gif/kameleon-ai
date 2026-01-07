@@ -6,60 +6,54 @@ export default async function handler(req, res) {
   try {
     const { message } = req.body;
 
-    /* 1️⃣ WALIDACJA */
     if (!message || typeof message !== "string") {
-      return res.status(400).json({ reply: "Nie otrzymałem wiadomości." });
+      return res.status(400).json({ error: "Brak wiadomości od użytkownika" });
     }
 
-    if (message.length > 300) {
-      return res.status(400).json({
-        reply: "Wiadomość jest za długa. Spróbuj krócej 🙂"
+    const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        temperature: 0.6,
+        messages: [
+          {
+            role: "system",
+            content:
+              "Jesteś inteligentnym, rzeczowym asystentem. Odpowiadasz normalnie, logicznie i konkretnie. " +
+              "Nie moralizujesz, nie pouczasz, nie poprawiasz pisowni użytkownika. " +
+              "Jeśli pytanie jest chaotyczne lub emocjonalne – próbujesz zrozumieć sens i pomóc."
+          },
+          {
+            role: "user",
+            content: message
+          }
+        ]
+      })
+    });
+
+    if (!openaiResponse.ok) {
+      const errText = await openaiResponse.text();
+      return res.status(500).json({
+        error: "Błąd OpenAI",
+        details: errText
       });
     }
 
-    /* 2️⃣ PROSTA FILTRACJA WULGARYZMÓW */
-    const vulgar = ["kurwa", "chuj", "pierd", "sra", "gówno", "jeb"];
-    if (vulgar.some(v => message.toLowerCase().includes(v))) {
-      return res.status(200).json({
-        reply:
-          "Rozumiem emocje 🙂 Spróbuj opisać sytuację trochę spokojniej, a postaram się pomóc."
-      });
-    }
+    const data = await openaiResponse.json();
 
-    /* 3️⃣ OPENAI */
-    const response = await fetch(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            {
-              role: "system",
-              content:
-                "Jesteś pomocnym, rzeczowym asystentem AI. Odpowiadasz spokojnie i konkretnie."
-            },
-            {
-              role: "user",
-              content: message
-            }
-          ],
-          temperature: 0.7,
-          max_tokens: 300
-        })
-      }
-    );
-
-    const data = await response.json();
-
-    if (!data.choices || !data.choices[0]) {
-      return res.status(200).json({
-        reply:
-          "Nie mogę na to teraz odpowiedzieć, ale jeśli sformułujesz pytanie inaczej – spróbujmy ponownie 🙂"
+    if (
+      !data ||
+      !data.choices ||
+      !data.choices[0] ||
+      !data.choices[0].message ||
+      !data.choices[0].message.content
+    ) {
+      return res.status(500).json({
+        error: "Pusta odpowiedź AI"
       });
     }
 
@@ -67,9 +61,10 @@ export default async function handler(req, res) {
       reply: data.choices[0].message.content
     });
 
-  } catch (error) {
-    return res.status(200).json({
-      reply: "Wystąpił błąd techniczny. Spróbuj za chwilę."
+  } catch (err) {
+    return res.status(500).json({
+      error: "Błąd serwera",
+      details: err.message
     });
   }
 }
