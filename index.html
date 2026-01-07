@@ -13,7 +13,7 @@ body{
   justify-content:center;
   align-items:center;
   background:#07172a;
-  font-family:Arial, sans-serif;
+  font-family:Arial,sans-serif;
   color:#e5e7eb;
 }
 .box{
@@ -53,7 +53,7 @@ input{
   background:#020617;
   padding:12px;
   border-radius:10px;
-  min-height:80px;
+  min-height:120px;
   text-align:left;
   white-space:pre-line;
 }
@@ -86,23 +86,31 @@ input{
 </div>
 
 <script>
-let lang='pl';
-let mode='agent';
+let lang = localStorage.getItem('lang') || 'pl';
+let mode = localStorage.getItem('mode') || 'agent';
+let memory = JSON.parse(localStorage.getItem('memory') || '[]');
+
+function saveMemory(){
+  localStorage.setItem('memory', JSON.stringify(memory));
+}
 
 function setLang(l){
   lang=l;
+  localStorage.setItem('lang',l);
   render();
 }
 
 function setMode(m){
   mode=m;
+  localStorage.setItem('mode',m);
   out.innerText=(lang==='pl'?'Tryb: ':'Mode: ')+m.toUpperCase();
 }
 
 function startAI(){
   out.innerText=lang==='pl'
-    ?'AI uruchomiona. Czekam na polecenie 🚀'
-    :'AI started. Awaiting input 🚀';
+    ?'AI uruchomiona. Historia załadowana.\n'
+    :'AI started. History loaded.\n';
+  memory.forEach(m=>out.innerText+=m+"\n");
 }
 
 function send(){
@@ -111,16 +119,20 @@ function send(){
 
   let reply='';
   if(mode==='agent'){
-    reply='🧠 Analiza zadania...\nZadanie przyjęte. Wykonuję krok po kroku.';
+    reply='🧠 Analiza zadania...\nZadanie zapisane i wykonywane.';
   }
   if(mode==='chat'){
-    reply='💬 Rozumiem.\nOto odpowiedź:\n'+text;
+    reply='💬 Odpowiadam:\n'+text;
   }
   if(mode==='hybryda'){
-    reply='🔀 Analiza + rozmowa:\nIntencja: OK\nOdpowiedź wygenerowana.';
+    reply='🔀 Analiza + rozmowa:\nIntencja OK. Odpowiedź gotowa.';
   }
 
-  out.innerText='> '+text+'\n\n'+reply;
+  const entry="> "+text+"\n"+reply+"\n";
+  memory.push(entry);
+  saveMemory();
+
+  out.innerText+=entry;
   input.value='';
 }
 
@@ -135,6 +147,7 @@ function render(){
     input.placeholder='Type a message…';
   }
 }
+render();
 </script>
 
 </body>
