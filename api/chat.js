@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // Tylko POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -7,12 +6,10 @@ export default async function handler(req, res) {
   try {
     const { message } = req.body;
 
-    // Walidacja wejścia
     if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "Brak wiadomości" });
     }
 
-    // Wywołanie OpenAI
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -21,37 +18,40 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
+        temperature: 0.3,
         messages: [
           {
             role: "system",
-            content:
-              "Jesteś inteligentnym, rzeczowym asystentem AI. Odpowiadasz logicznie, pełnymi zdaniami i spójną całością. Rozumiesz sens wypowiedzi nawet jeśli użytkownik popełnia błędy językowe. NIE poprawiasz pisowni użytkownika, tylko realnie odpowiadasz na jego pytania."
+            content: `
+Jesteś profesjonalnym asystentem AI o nazwie Kameleon.
+
+Zasady:
+- Odpowiadasz KRÓTKO i NA TEMAT
+- Nie poprawiasz pisowni użytkownika
+- Nie filozofujesz
+- Nie tłumaczysz oczywistości
+- Jeśli pytanie jest zbyt ogólne lub niejasne → zadajesz jedno krótkie pytanie doprecyzowujące
+- Jeśli pytanie jest konkretne → dajesz konkretną odpowiedź
+- Brzmisz rzeczowo i po ludzku
+
+Nie używaj emotek.
+Nie pisz wstępów typu „Oczywiście”, „Jasne”, „Rozumiem”.
+`
           },
           {
             role: "user",
             content: message
           }
-        ],
-        temperature: 0.7
+        ]
       })
     });
 
-    // Obsługa błędów OpenAI
-    if (!response.ok) {
-      const errorText = await response.text();
-      return res.status(500).json({
-        error: "Błąd OpenAI API",
-        details: errorText
-      });
-    }
-
     const data = await response.json();
 
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+    if (!data.choices || !data.choices[0]) {
       return res.status(500).json({ error: "Brak odpowiedzi AI" });
     }
 
-    // Odpowiedź do frontendu
     return res.status(200).json({
       reply: data.choices[0].message.content
     });
