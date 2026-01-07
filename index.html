@@ -6,158 +6,137 @@
 <title>Kameleon AI</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0f172a;
-  color: #e5e7eb;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#0f172a;
+  color:#e5e7eb;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
 }
-
-.app {
-  width: 100%;
-  max-width: 430px;
-  background: #020617;
-  padding: 24px;
-  border-radius: 18px;
-  box-shadow: 0 0 40px rgba(0,0,0,.6);
+.app{
+  width:100%;
+  max-width:430px;
+  background:#020617;
+  padding:24px;
+  border-radius:18px;
 }
-
-h1 {
-  text-align: center;
-  margin-bottom: 6px;
+h1{text-align:center;}
+.subtitle{text-align:center;opacity:.8;font-size:14px;}
+.modes{display:flex;gap:10px;justify-content:center;margin:16px 0;}
+.modes button{
+  padding:10px 14px;
+  border-radius:12px;
+  border:none;
+  background:#1e293b;
+  color:#e5e7eb;
 }
-
-.subtitle {
-  text-align: center;
-  opacity: .8;
-  font-size: 14px;
+.modes button.active{background:#2563eb;}
+textarea{
+  width:100%;
+  border-radius:12px;
+  padding:12px;
+  font-size:16px;
+  border:none;
+  margin-top:10px;
 }
-
-.modes {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin: 16px 0;
+button.start{
+  width:100%;
+  margin-top:12px;
+  padding:14px;
+  font-size:18px;
+  border-radius:14px;
+  border:none;
+  background:#e5e7eb;
+  color:#020617;
+  font-weight:bold;
 }
-
-.modes button {
-  padding: 10px 14px;
-  border-radius: 12px;
-  border: none;
-  background: #1e293b;
-  color: #e5e7eb;
-}
-
-.modes button.active {
-  background: #2563eb;
-}
-
-textarea {
-  width: 100%;
-  border-radius: 12px;
-  padding: 12px;
-  font-size: 16px;
-  border: none;
-  margin-top: 10px;
-}
-
-button.start {
-  width: 100%;
-  margin-top: 12px;
-  padding: 14px;
-  font-size: 18px;
-  border-radius: 14px;
-  border: none;
-  background: #e5e7eb;
-  color: #020617;
-  font-weight: bold;
-}
-
-.chat {
-  margin-top: 20px;
-  white-space: pre-wrap;
-  font-size: 15px;
+.chat{
+  margin-top:20px;
+  white-space:pre-wrap;
+  font-size:15px;
 }
 </style>
 </head>
 
 <body>
 <div class="app">
-  <h1>🦎 Kameleon AI</h1>
-  <div class="subtitle">
-    Projekt wczesnego dostępu<br>
-    Panel aplikacji – gotowy do działania
-  </div>
+<h1>🦎 Kameleon AI</h1>
+<div class="subtitle">
+Projekt wczesnego dostępu<br>
+Panel aplikacji – gotowy do działania
+</div>
 
-  <div class="modes">
-    <button class="active">🧠 Agent</button>
-    <button>💬 Chat</button>
-    <button>🔀 Hybryda</button>
-  </div>
+<div class="modes">
+<button class="active">🧠 Agent</button>
+<button>💬 Chat</button>
+<button>🔀 Hybryda</button>
+</div>
 
-  <textarea id="input" placeholder="Napisz wiadomość..."></textarea>
-  <button class="start" onclick="process()">START</button>
-
-  <div class="chat" id="chat"></div>
+<textarea id="input" placeholder="Napisz wiadomość..."></textarea>
+<button class="start" onclick="process()">START</button>
+<div class="chat" id="chat"></div>
 </div>
 
 <script>
-function poprawZdanie(text) {
+function poprawZdanie(text){
   let t = text.toLowerCase();
 
+  // ETAP 1 – agresywna normalizacja
   const mapa = {
-    "czesc": "cześć",
-    "jag": "jak",
-    "jkg": "jak",
-    "jzk": "jak",
-    "jk": "jak",
-    "jak": "jak",
-    "se": "się",
-    "sie": "się",
-    "sje": "się",
-    "mos": "masz",
-    "mase": "masz",
-    "mas": "masz"
+    "czesc":"cześć",
+    "jok":"jak",
+    "jkg":"jak",
+    "jzk":"jak",
+    "jk":"jak",
+    "jag":"jak",
+    "se":"się",
+    "sie":"się",
+    "sje":"się",
+    "mos":"masz",
+    "mose":"masz",
+    "moce":"masz",
+    "mase":"masz",
+    "mas":"masz"
   };
 
-  Object.entries(mapa).forEach(([b, p]) => {
-    t = t.replace(new RegExp("\\b" + b + "\\b", "g"), p);
+  Object.entries(mapa).forEach(([b,p])=>{
+    t = t.replace(new RegExp("\\b"+b+"\\b","g"),p);
   });
 
-  // logika sensu
-  if (t.includes("cześć") && t.includes("jak") && t.includes("się") && t.includes("masz")) {
+  // ETAP 2 – sens zdania
+  if (
+    t.includes("cześć") &&
+    t.includes("jak") &&
+    t.includes("się") &&
+    t.includes("masz")
+  ){
     t = "cześć, jak się masz";
   }
 
-  // format końcowy
+  // ETAP 3 – format
   t = t.charAt(0).toUpperCase() + t.slice(1);
-
-  if (!/[.!?]$/.test(t)) {
-    t += "?";
-  }
+  if(!/[.!?]$/.test(t)) t += "?";
 
   return t;
 }
 
-function process() {
-  const input = document.getElementById("input");
-  const chat = document.getElementById("chat");
+function process(){
+  const input=document.getElementById("input");
+  const chat=document.getElementById("chat");
+  const original=input.value.trim();
+  if(!original) return;
 
-  const original = input.value.trim();
-  if (!original) return;
-
-  const corrected = poprawZdanie(original);
+  const corrected=poprawZdanie(original);
 
   chat.innerText +=
     "> " + original + "\n" +
     "✓ Poprawiona pisownia:\n" +
     corrected + "\n\n";
 
-  input.value = "";
+  input.value="";
 }
 </script>
 </body>
