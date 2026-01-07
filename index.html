@@ -50,7 +50,6 @@ h1 {
   border: none;
   background: #1e293b;
   color: #e5e7eb;
-  cursor: pointer;
 }
 
 .modes button.active {
@@ -76,7 +75,6 @@ button.start {
   background: #e5e7eb;
   color: #020617;
   font-weight: bold;
-  cursor: pointer;
 }
 
 .chat {
@@ -109,40 +107,37 @@ button.start {
 
 <script>
 function poprawZdanie(text) {
-  let t = text.toLowerCase().trim();
+  let t = text.toLowerCase();
 
   const mapa = {
     "czesc": "cześć",
+    "jag": "jak",
+    "jkg": "jak",
     "jzk": "jak",
     "jk": "jak",
     "jak": "jak",
+    "se": "się",
     "sie": "się",
     "sje": "się",
-    "mase": "masz",
     "mos": "masz",
-    "mas": "masz",
-    "jest se": "jest",
-    "jest se mos": "jest",
+    "mase": "masz",
+    "mas": "masz"
   };
 
-  Object.keys(mapa).forEach(bledne => {
-    const reg = new RegExp("\\b" + bledne + "\\b", "g");
-    t = t.replace(reg, mapa[bledne]);
+  Object.entries(mapa).forEach(([b, p]) => {
+    t = t.replace(new RegExp("\\b" + b + "\\b", "g"), p);
   });
 
-  // Logika sensu
-  if (t.startsWith("cześć") && t.includes("jak się masz")) {
+  // logika sensu
+  if (t.includes("cześć") && t.includes("jak") && t.includes("się") && t.includes("masz")) {
     t = "cześć, jak się masz";
   }
 
-  // Wielka litera
+  // format końcowy
   t = t.charAt(0).toUpperCase() + t.slice(1);
 
-  // Znak zapytania
-  if (t.includes("jak się masz") && !t.endsWith("?")) {
+  if (!/[.!?]$/.test(t)) {
     t += "?";
-  } else if (!/[.!?]$/.test(t)) {
-    t += ".";
   }
 
   return t;
