@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Kameleon AI</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -15,60 +16,75 @@
       height: 100vh;
       margin: 0;
     }
+
     .box {
-      width: 100%;
-      max-width: 500px;
-      padding: 24px;
+      text-align: center;
+      max-width: 420px;
+      padding: 30px;
       border-radius: 14px;
       background: #020617;
       box-shadow: 0 0 30px rgba(0,0,0,0.6);
     }
+
     h1 {
-      margin-top: 0;
-    }
-    .lang {
-      text-align: right;
       margin-bottom: 10px;
     }
-    button {
-      padding: 8px 14px;
-      margin: 4px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
+
+    p {
+      opacity: 0.9;
     }
-    .start {
+
+    button {
+      padding: 10px 16px;
+      margin: 6px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .lang button {
+      background: #e5e7eb;
+    }
+
+    #startBtn {
       width: 100%;
       margin-top: 16px;
-      font-size: 16px;
+      font-size: 18px;
     }
-    .chat {
+
+    #chat {
       display: none;
-      margin-top: 16px;
+      margin-top: 20px;
+      text-align: left;
     }
-    .messages {
-      height: 220px;
-      overflow-y: auto;
+
+    #messages {
       background: #020617;
-      border: 1px solid #1e293b;
       padding: 10px;
+      height: 200px;
+      overflow-y: auto;
+      border-radius: 6px;
       margin-bottom: 10px;
-      border-radius: 8px;
       font-size: 14px;
     }
-    .user { color: #38bdf8; }
-    .ai { color: #22c55e; }
-    input {
+
+    #input {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       border-radius: 6px;
       border: none;
+    }
+
+    .mode button {
+      font-size: 13px;
     }
   </style>
 </head>
 
 <body>
   <div class="box">
+
     <div class="lang">
       <button onclick="setLang('pl')">PL</button>
       <button onclick="setLang('en')">EN</button>
@@ -76,66 +92,97 @@
 
     <h1 id="title">🦎 Kameleon AI</h1>
     <p id="line1">Projekt wczesnego dostępu</p>
-    <p id="line2">Wersja testowa – język PL (działa)</p>
+    <p id="line2">Panel aplikacji – gotowy do działania</p>
 
-    <button class="start" onclick="startApp()">START</button>
+    <button id="startBtn" onclick="startApp()">START</button>
 
-    <div class="chat" id="chat">
-      <div class="messages" id="messages"></div>
-      <input id="input" placeholder="Napisz wiadomość..." onkeydown="handleEnter(event)" />
+    <div class="mode" id="mode" style="display:none;">
+      <button onclick="setMode('agent')">🧠 Agent</button>
+      <button onclick="setMode('chat')">💬 Chat</button>
+      <button onclick="setMode('hybrid')">🔀 Hybryda</button>
     </div>
+
+    <div id="chat">
+      <div id="messages"></div>
+      <input id="input" placeholder="Napisz wiadomość..." />
+    </div>
+
   </div>
 
 <script>
-function applyLang(lang) {
-  if (lang === 'pl') {
-    title.innerText = "🦎 Kameleon AI";
-    line1.innerText = "Projekt wczesnego dostępu";
-    line2.innerText = "Panel aplikacji – gotowy do działania";
-    input.placeholder = "Napisz wiadomość...";
-  } else {
-    title.innerText = "🦎 Kameleon AI";
-    line1.innerText = "Early access project";
-    line2.innerText = "Application panel – ready";
-    input.placeholder = "Type a message...";
+let LANG = localStorage.getItem("lang") || "pl";
+let MODE = "hybrid";
+
+const texts = {
+  pl: {
+    title: "🦎 Kameleon AI",
+    line1: "Projekt wczesnego dostępu",
+    line2: "Panel aplikacji – gotowy do działania",
+    start: "START",
+    placeholder: "Napisz wiadomość..."
+  },
+  en: {
+    title: "🦎 Kameleon AI",
+    line1: "Early access project",
+    line2: "Application panel – ready",
+    start: "START",
+    placeholder: "Type a message..."
   }
-}
+};
 
 function setLang(lang) {
+  LANG = lang;
   localStorage.setItem("lang", lang);
-  applyLang(lang);
+  applyLang();
 }
 
-(function () {
-  const saved = localStorage.getItem("lang");
-  const auto = navigator.language.startsWith("pl") ? "pl" : "en";
-  applyLang(saved || auto);
-})();
+function applyLang() {
+  document.getElementById("title").innerText = texts[LANG].title;
+  document.getElementById("line1").innerText = texts[LANG].line1;
+  document.getElementById("line2").innerText = texts[LANG].line2;
+  document.getElementById("startBtn").innerText = texts[LANG].start;
+  document.getElementById("input").placeholder = texts[LANG].placeholder;
+}
 
 function startApp() {
-  document.querySelector(".start").style.display = "none";
+  document.getElementById("startBtn").style.display = "none";
   document.getElementById("chat").style.display = "block";
-  addMessage("ai", "Aplikacja uruchomiona. Jestem gotowy 🚀");
+  document.getElementById("mode").style.display = "block";
+  addMessage("ai", "Aplikacja uruchomiona 🚀");
 }
 
-function addMessage(type, text) {
-  const msg = document.createElement("div");
-  msg.className = type;
-  msg.innerText = (type === "user" ? "Ty: " : "AI: ") + text;
-  messages.appendChild(msg);
-  messages.scrollTop = messages.scrollHeight;
+function setMode(mode) {
+  MODE = mode;
+  addMessage("ai", "Tryb: " + MODE.toUpperCase());
 }
 
-function handleEnter(e) {
-  if (e.key === "Enter" && input.value.trim()) {
-    const text = input.value;
+function addMessage(who, text) {
+  const box = document.getElementById("messages");
+  const div = document.createElement("div");
+  div.innerText = (who === "ai" ? "AI: " : "Ty: ") + text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+document.getElementById("input").addEventListener("keydown", function(e) {
+  if (e.key === "Enter" && this.value.trim()) {
+    const text = this.value;
+    this.value = "";
     addMessage("user", text);
-    input.value = "";
+
     setTimeout(() => {
-      addMessage("ai", "Odebrałem: \"" + text + "\"");
+      if (MODE === "chat") {
+        addMessage("ai", "Rozmowa: " + text);
+      } else if (MODE === "agent") {
+        addMessage("ai", "Zadanie przyjęte. Analizuję: " + text);
+      } else {
+        addMessage("ai", "Hybryda – myślę i działam: " + text);
+      }
     }, 400);
   }
-}
+});
+
+applyLang();
 </script>
 </body>
 </html>
