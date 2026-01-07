@@ -94,7 +94,10 @@ function poprawZdanie(text) {
     "mos": "masz",
     "nosz": "masz",
     "dis": "dziś",
-    "robis": "robisz"
+    "robis": "robisz",
+    "gdes": "gdzieś",
+    "wyskoxymy": "wyskoczymy",
+    "rzzen": "razem"
   };
 
   Object.keys(mapa).forEach(b => {
@@ -114,18 +117,23 @@ function odpowiedz(text) {
   }
 
   if (t.includes("jak się masz")) {
-    return "Czuję się w porządku 🙂 Dzięki za pytanie. A Ty jak się czujesz?";
+    return "Czuję się w porządku 🙂 A jak u Ciebie?";
   }
 
   if (t.includes("jak się czujesz")) {
-    return "Dzięki, że pytasz 🙂 Czuję się stabilnie i spokojnie. A u Ciebie wszystko okej?";
+    return "Dzięki za pytanie 🙂 Czuję się spokojnie. A Ty?";
   }
 
-  if (t.includes("co robisz") || t.includes("co dziś robisz")) {
-    return "Jestem tu dla Ciebie 😄 W czym mogę pomóc?";
+  if (
+    t.includes("wyskoczymy") ||
+    t.includes("spotkamy") ||
+    t.includes("chodźmy") ||
+    t.includes("razem")
+  ) {
+    return "Brzmi fajnie 🙂 Masz coś konkretnego na myśli?";
   }
 
-  return "Rozumiem 🙂 Jeśli chcesz, opisz to trochę dokładniej.";
+  return "Rozumiem 🙂 Jeśli chcesz, napisz trochę więcej.";
 }
 
 function send() {
