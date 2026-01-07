@@ -69,37 +69,39 @@ button{
 const input = document.getElementById("input");
 const chat  = document.getElementById("chat");
 
-// 👉 PAMIĘĆ ROZMOWY
-const conversation = [];
+/* PAMIĘĆ ROZMOWY */
+const history = [];
 
 async function send(){
   const text = input.value.trim();
   if(!text) return;
 
   chat.innerHTML += `<div class="msg user">&gt; ${text}</div>`;
+  history.push({ role:"user", content:text });
   input.value = "";
   chat.scrollTop = chat.scrollHeight;
-
-  conversation.push({ role: "user", content: text });
 
   try{
     const res = await fetch("/api/chat",{
       method:"POST",
       headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({ messages: conversation })
+      body:JSON.stringify({
+        message: text,
+        history: history
+      })
     });
 
     const data = await res.json();
 
     if(!res.ok){
-      chat.innerHTML += `<div class="msg err">❌ ${data.error || "Błąd serwera"}</div>`;
+      chat.innerHTML += `<div class="msg err">❌ ${data.error || "Błąd AI"}</div>`;
     } else {
       chat.innerHTML += `<div class="msg ai">🤖 ${data.reply}</div>`;
-      conversation.push({ role: "assistant", content: data.reply });
+      history.push({ role:"assistant", content:data.reply });
     }
 
   }catch(e){
-    chat.innerHTML += `<div class="msg err">❌ Brak połączenia z backendem</div>`;
+    chat.innerHTML += `<div class="msg err">❌ Brak połączenia z API</div>`;
   }
 
   chat.scrollTop = chat.scrollHeight;
