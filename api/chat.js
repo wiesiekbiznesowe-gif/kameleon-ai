@@ -6,45 +6,53 @@ export default async function handler(req, res) {
   try {
     const { message } = req.body;
 
+    /* 1️⃣ PODSTAWOWA WALIDACJA */
     if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "Brak wiadomości" });
     }
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        temperature: 0.3,
-        messages: [
-          {
-            role: "system",
-            content: `
-Jesteś profesjonalnym asystentem AI o nazwie Kameleon.
+    /* 2️⃣ LIMIT DŁUGOŚCI (ANTI-SPAM / ANTI-KOSZT) */
+    if (message.length > 300) {
+      return res.status(400).json({
+        error: "Wiadomość jest za długa (max 300 znaków)"
+      });
+    }
 
-Zasady:
-- Odpowiadasz KRÓTKO i NA TEMAT
-- Nie poprawiasz pisowni użytkownika
-- Nie filozofujesz
-- Nie tłumaczysz oczywistości
-- Jeśli pytanie jest zbyt ogólne lub niejasne → zadajesz jedno krótkie pytanie doprecyzowujące
-- Jeśli pytanie jest konkretne → dajesz konkretną odpowiedź
-- Brzmisz rzeczowo i po ludzku
+    /* 3️⃣ PROSTE BLOKADY SPAMU */
+    const forbidden = ["http://", "https://", "<script", "SELECT *"];
+    if (forbidden.some(f => message.toLowerCase().includes(f))) {
+      return res.status(400).json({
+        error: "Niedozwolona treść"
+      });
+    }
 
-Nie używaj emotek.
-Nie pisz wstępów typu „Oczywiście”, „Jasne”, „Rozumiem”.
-`
-          },
-          {
-            role: "user",
-            content: message
-          }
-        ]
-      })
-    });
+    /* 4️⃣ WYWOŁANIE OPENAI */
+    const response = await fetch(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content:
+                "Jesteś inteligentnym, rzeczowym asystentem AI. Odpowiadasz naturalnie, bez poprawiania pisowni użytkownika."
+            },
+            {
+              role: "user",
+              content: message
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 300
+        })
+      }
+    );
 
     const data = await response.json();
 
