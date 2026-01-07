@@ -1,4 +1,5 @@
 export default async function handler(req, res) {
+  // Tylko POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -6,10 +7,12 @@ export default async function handler(req, res) {
   try {
     const { message } = req.body;
 
+    // Walidacja wejścia
     if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "Brak wiadomości" });
     }
 
+    // Wywołanie OpenAI
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -22,7 +25,7 @@ export default async function handler(req, res) {
           {
             role: "system",
             content:
-              "Jesteś inteligentnym, rzeczowym asystentem AI. Odpowiadasz pełnymi zdaniami, konkretnie i pomocnie. Nie poprawiasz pisowni użytkownika, tylko realnie odpowiadasz na jego pytania."
+              "Jesteś inteligentnym, rzeczowym asystentem AI. Odpowiadasz logicznie, pełnymi zdaniami i spójną całością. Rozumiesz sens wypowiedzi nawet jeśli użytkownik popełnia błędy językowe. NIE poprawiasz pisowni użytkownika, tylko realnie odpowiadasz na jego pytania."
           },
           {
             role: "user",
@@ -33,12 +36,22 @@ export default async function handler(req, res) {
       })
     });
 
+    // Obsługa błędów OpenAI
+    if (!response.ok) {
+      const errorText = await response.text();
+      return res.status(500).json({
+        error: "Błąd OpenAI API",
+        details: errorText
+      });
+    }
+
     const data = await response.json();
 
-    if (!data.choices || !data.choices[0]) {
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
       return res.status(500).json({ error: "Brak odpowiedzi AI" });
     }
 
+    // Odpowiedź do frontendu
     return res.status(200).json({
       reply: data.choices[0].message.content
     });
