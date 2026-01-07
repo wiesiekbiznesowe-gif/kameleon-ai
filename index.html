@@ -1,32 +1,82 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kameleon AI</title>
+
+<style>
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:linear-gradient(180deg,#0b1220,#0f172a);
+color:#e5e7eb;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+}
+.app{
+width:100%;
+max-width:420px;
+background:#020617;
+border-radius:18px;
+padding:20px;
+box-shadow:0 20px 50px rgba(0,0,0,.6);
+}
+h1{text-align:center;margin-bottom:12px;}
+textarea{
+width:100%;
+min-height:90px;
+border-radius:12px;
+border:none;
+padding:12px;
+font-size:16px;
+}
+button{
+width:100%;
+margin-top:10px;
+padding:14px;
+border-radius:12px;
+border:none;
+font-size:16px;
+font-weight:bold;
+background:#2563eb;
+color:#fff;
+}
+.chat{
+margin-top:16px;
+max-height:320px;
+overflow-y:auto;
+font-size:14px;
+}
+.msg{margin-top:10px;}
+.user{color:#93c5fd;}
+.ai{color:#a5b4fc;}
+</style>
+</head>
+
+<body>
+<div class="app">
+<h1>🦎 Kameleon AI</h1>
+<textarea id="input" placeholder="Napisz wiadomość..."></textarea>
+<button onclick="send()">START</button>
+<div id="chat" class="chat"></div>
+</div>
+
 <script>
-const input = document.getElementById("input");
-const chat = document.getElementById("chat");
+const input=document.getElementById("input");
+const chat=document.getElementById("chat");
 
-async function send() {
-  const message = input.value.trim();
-  if (!message) return;
+function send(){
+const text=input.value.trim();
+if(!text)return;
 
-  chat.innerHTML += `<div class="msg user">&gt; ${message}</div>`;
-  input.value = "";
-
-  try {
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message })
-    });
-
-    const data = await res.json();
-
-    if (data.reply) {
-      chat.innerHTML += `<div class="msg ai">🤖 ${data.reply}</div>`;
-    } else {
-      chat.innerHTML += `<div class="msg ai">❌ Brak odpowiedzi AI</div>`;
-    }
-  } catch (e) {
-    chat.innerHTML += `<div class="msg ai">❌ Błąd połączenia</div>`;
-  }
-
-  chat.scrollTop = chat.scrollHeight;
+chat.innerHTML+=`<div class="msg user">&gt; ${text}</div>`;
+chat.innerHTML+=`<div class="msg ai">🤖 Działa. Backend podłączymy w kolejnym kroku.</div>`;
+input.value="";
+chat.scrollTop=chat.scrollHeight;
 }
 </script>
+</body>
+</html>
