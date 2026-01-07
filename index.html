@@ -52,6 +52,7 @@ font-size:14px;
 }
 .msg{margin-top:10px;}
 .user{color:#93c5fd;}
+.fix{color:#22c55e;}
 .ai{color:#a5b4fc;}
 </style>
 </head>
@@ -65,36 +66,67 @@ font-size:14px;
 </div>
 
 <script>
-const input = document.getElementById("input");
-const chat = document.getElementById("chat");
+const input=document.getElementById("input");
+const chat=document.getElementById("chat");
 
-async function send(){
-  const text = input.value.trim();
-  if(!text) return;
+/* cicha neutralizacja wulgaryzmów */
+function sanitize(text){
+return text
+.replace(/jeban\w*|kurw\w*|pierdol\w*|chuj\w*|sra\w*/gi,"")
+.replace(/\s+/g," ")
+.trim();
+}
 
-  chat.innerHTML += `<div class="msg user">&gt; ${text}</div>`;
-  input.value = "";
-  chat.scrollTop = chat.scrollHeight;
+/* delikatna korekta pisowni */
+function popraw(text){
+let t=sanitize(text).toLowerCase();
 
-  try{
-    const res = await fetch("/api/chat",{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ message: text })
-    });
+const mapa={
+"ces":"cześć","ceś":"cześć",
+"dis":"dziś",
+"miod":"miód","niod":"miód",
+"psczeli":"pszczeli","pczeli":"pszczeli",
+"grzyby":"grzyb","grzyby":"grzyb"
+};
 
-    const data = await res.json();
+Object.keys(mapa).forEach(k=>{
+t=t.replace(new RegExp("\\b"+k+"\\b","g"),mapa[k]);
+});
 
-    if(data.reply){
-      chat.innerHTML += `<div class="msg ai">🤖 ${data.reply}</div>`;
-    }else{
-      chat.innerHTML += `<div class="msg ai">❌ Brak odpowiedzi AI</div>`;
-    }
-  }catch(e){
-    chat.innerHTML += `<div class="msg ai">⚠️ Błąd połączenia</div>`;
-  }
+t=t.charAt(0).toUpperCase()+t.slice(1);
+if(!/[.!?]$/.test(t))t+="?";
+return t;
+}
 
-  chat.scrollTop = chat.scrollHeight;
+/* merytoryczne odpowiedzi */
+function odpowiedz(t){
+t=t.toLowerCase();
+
+if(t.includes("grzyb") && t.includes("ścian"))
+return "Grzyb na ścianie zwykle pojawia się przez wilgoć. Usuń go preparatem grzybobójczym lub roztworem wody z octem, następnie popraw wentylację. Jeśli wraca, problemem może być zawilgocona ściana.";
+
+if(t.includes("miód"))
+return "Miód pszczeli to naturalny produkt powstający z nektaru kwiatów zbieranego przez pszczoły. Jest ceniony za smak i właściwości zdrowotne.";
+
+if(t.includes("cześć"))
+return "Cześć 🙂 Jak mogę pomóc?";
+
+return "Rozumiem 🙂 Jeśli chcesz, mogę pomóc — napisz trochę dokładniej.";
+}
+
+function send(){
+if(!input.value.trim())return;
+
+const raw=input.value;
+const fixed=popraw(raw);
+const reply=odpowiedz(fixed);
+
+chat.innerHTML+=`<div class="msg user">&gt; ${raw}</div>`;
+chat.innerHTML+=`<div class="msg fix">✓ Przetworzone: ${fixed}</div>`;
+chat.innerHTML+=`<div class="msg ai">🤖 ${reply}</div>`;
+
+input.value="";
+chat.scrollTop=chat.scrollHeight;
 }
 </script>
 </body>
