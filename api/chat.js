@@ -4,10 +4,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message } = req.body;
+    const { messages } = req.body;
 
-    if (!message || typeof message !== "string") {
-      return res.status(400).json({ error: "Brak wiadomości" });
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ error: "Brak kontekstu rozmowy" });
     }
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -22,12 +22,9 @@ export default async function handler(req, res) {
           {
             role: "system",
             content:
-              "Jesteś bezpośrednim, inteligentnym asystentem AI. Odpowiadasz naturalnie, po ludzku. Nie moralizujesz, nie pouczasz, nie cytujesz regulaminów. Jeśli pytanie jest agresywne – zachowujesz spokój i odpowiadasz rzeczowo albo neutralnie."
+              "Jesteś rozmownym, inteligentnym asystentem. Pamiętasz kontekst rozmowy. Odpowiadasz naturalnie, po ludzku, bez moralizowania i bez regulaminowych formułek."
           },
-          {
-            role: "user",
-            content: message
-          }
+          ...messages
         ],
         temperature: 0.8
       })
