@@ -1,51 +1,102 @@
-<script>
-const input = document.getElementById("input");
-const chat = document.getElementById("chat");
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kameleon AI</title>
 
-function poprawTekstCalosciowo(text) {
-  if (!text) return "";
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
 
-  // prosta normalizacja
-  let t = text.trim();
+    .app {
+      width: 100%;
+      max-width: 420px;
+      background: #020617;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,.5);
+    }
 
-  // wielka litera na początku
-  t = t.charAt(0).toUpperCase() + t.slice(1);
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
 
-  // znak zapytania dla pytań
-  if (/^(jak|co|czy|dlaczego|kiedy)/i.test(t) && !/[?.!]$/.test(t)) {
-    t += "?";
-  }
+    textarea {
+      width: 100%;
+      min-height: 80px;
+      border-radius: 10px;
+      border: none;
+      padding: 10px;
+      font-size: 16px;
+    }
 
-  return t;
-}
+    button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+    }
 
-function odpowiedzLogicznie(text) {
-  const lower = text.toLowerCase();
+    .chat {
+      margin-top: 15px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-size: 14px;
+    }
 
-  if (lower.includes("jak się masz")) {
-    return "Mam się dobrze 🙂 A jak mogę Ci pomóc?";
-  }
+    .user { color: #93c5fd; margin-top: 10px; }
+    .ai { color: #86efac; margin-top: 5px; }
+  </style>
+</head>
 
-  if (lower.includes("świetnie") || lower.includes("dobrze")) {
-    return "Super! 👍 Co chciałbyś zrobić dalej?";
-  }
+<body>
+  <div class="app">
+    <h1>🦎 Kameleon AI</h1>
 
-  return "Rozumiem. Opowiedz proszę więcej 🙂";
-}
+    <textarea id="input" placeholder="Napisz wiadomość..."></textarea>
+    <button onclick="send()">START</button>
 
-function send() {
-  if (!input.value.trim()) return;
+    <div id="chat" class="chat"></div>
+  </div>
 
-  const original = input.value;
-  const poprawiony = poprawTekstCalosciowo(original);
+  <script>
+    const input = document.getElementById("input");
+    const chat = document.getElementById("chat");
 
-  chat.innerHTML += `<div class="msg user">&gt; ${original}</div>`;
-  chat.innerHTML += `<div class="msg fixed">✓ Poprawiona pisownia:<br>${poprawiony}</div>`;
+    function poprawTekst(text) {
+      if (!text) return "";
+      let t = text.toLowerCase().trim();
+      t = t.charAt(0).toUpperCase() + t.slice(1);
+      if (!/[.!?]$/.test(t)) t += "?";
+      return t;
+    }
 
-  const reply = odpowiedzLogicznie(poprawiony);
-  chat.innerHTML += `<div class="msg ai">🤖 ${reply}</div>`;
+    function send() {
+      if (!input.value.trim()) return;
 
-  input.value = "";
-  chat.scrollTop = chat.scrollHeight;
-}
-</script>
+      const raw = input.value;
+      const fixed = poprawTekst(raw);
+
+      chat.innerHTML += `<div class="user">&gt; ${raw}</div>`;
+      chat.innerHTML += `<div class="ai">✓ Poprawiona pisownia:<br>${fixed}</div>`;
+      chat.innerHTML += `<div class="ai">🤖 Rozumiem. Co dalej?</div>`;
+
+      input.value = "";
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+</body>
+</html>
