@@ -7,48 +7,48 @@
 
 <style>
 body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:linear-gradient(180deg,#0b1220,#0f172a);
-  color:#e5e7eb;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
+margin:0;
+font-family:Arial,sans-serif;
+background:linear-gradient(180deg,#0b1220,#0f172a);
+color:#e5e7eb;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
 }
 .app{
-  width:100%;
-  max-width:420px;
-  background:#020617;
-  border-radius:18px;
-  padding:20px;
-  box-shadow:0 20px 50px rgba(0,0,0,.6);
+width:100%;
+max-width:420px;
+background:#020617;
+border-radius:18px;
+padding:20px;
+box-shadow:0 20px 50px rgba(0,0,0,.6);
 }
 h1{text-align:center;margin-bottom:12px;}
 textarea{
-  width:100%;
-  min-height:90px;
-  border-radius:12px;
-  border:none;
-  padding:12px;
-  font-size:16px;
+width:100%;
+min-height:90px;
+border-radius:12px;
+border:none;
+padding:12px;
+font-size:16px;
 }
 button{
-  width:100%;
-  margin-top:10px;
-  padding:14px;
-  border-radius:12px;
-  border:none;
-  font-size:16px;
-  font-weight:bold;
-  background:#2563eb;
-  color:#fff;
+width:100%;
+margin-top:10px;
+padding:14px;
+border-radius:12px;
+border:none;
+font-size:16px;
+font-weight:bold;
+background:#2563eb;
+color:#fff;
 }
 .chat{
-  margin-top:16px;
-  max-height:320px;
-  overflow-y:auto;
-  font-size:14px;
+margin-top:16px;
+max-height:320px;
+overflow-y:auto;
+font-size:14px;
 }
 .msg{margin-top:10px;}
 .user{color:#93c5fd;}
@@ -74,9 +74,8 @@ let t=text.toLowerCase().trim();
 
 const mapa={
 "ces":"cześć","ceś":"cześć","ps":"po prostu",
-"dis":"dziś","jemy":"jemy","robimy":"robimy",
-"colko":"co","pscolko":"co","olka":"olka",
-"siebie":"sobie","illota":"lato","lato":"lato"
+"dis":"dziś","robocie":"pracy","robota":"praca",
+"nie":"niej","u nie":"u niej"
 };
 
 Object.keys(mapa).forEach(k=>{
@@ -91,10 +90,18 @@ return t;
 function odpowiedz(t){
 t=t.toLowerCase();
 
-if(t.includes("cześć")) return "Cześć 🙂 Jak mija dzień?";
-if(t.includes("co dziś jemy")) return "Możemy coś lekkiego 🍝🥗 A masz ochotę na coś konkretnego?";
-if(t.includes("co dziś robimy")||t.includes("co dziś")) return "Możemy coś zaplanować 🙂 Spacer, film czy chill?";
-if(t.includes("lato")) return "Lato brzmi super ☀️ Masz coś konkretnego na myśli?";
+if(t.includes("cześć"))
+return "Cześć 🙂 Jak mija dzień?";
+
+if(t.includes("u niej") && (t.includes("pracy") || t.includes("praca")))
+return "Rozumiem 🙂 Pytasz, czy będziesz dziś u niej w pracy?";
+
+if(t.includes("co dziś jemy"))
+return "Możemy coś zaplanować 🍝🥗 Masz ochotę na coś konkretnego?";
+
+if(t.includes("co dziś robimy") || t.includes("co dziś"))
+return "Możemy coś zaplanować 🙂 Co masz na myśli?";
+
 return "Rozumiem 🙂 Napisz trochę więcej, a odpowiem konkretnie.";
 }
 
