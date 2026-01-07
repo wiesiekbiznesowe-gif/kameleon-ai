@@ -56,26 +56,15 @@
 
     .chat {
       margin-top: 16px;
-      max-height: 300px;
+      max-height: 320px;
       overflow-y: auto;
       font-size: 14px;
     }
 
-    .msg {
-      margin-top: 10px;
-    }
-
-    .user {
-      color: #93c5fd;
-    }
-
-    .fix {
-      color: #22c55e;
-    }
-
-    .ai {
-      color: #a5b4fc;
-    }
+    .msg { margin-top: 10px; }
+    .user { color: #93c5fd; }
+    .fix { color: #22c55e; }
+    .ai  { color: #a5b4fc; }
   </style>
 </head>
 
@@ -89,51 +78,66 @@
     <div id="chat" class="chat"></div>
   </div>
 
-  <script>
-    const input = document.getElementById("input");
-    const chat = document.getElementById("chat");
+<script>
+const input = document.getElementById("input");
+const chat = document.getElementById("chat");
 
-    function poprawTekst(text) {
-      let t = text.trim();
-      if (!t) return "";
+function poprawZdanie(text) {
+  let t = text.toLowerCase().trim();
 
-      t = t.charAt(0).toUpperCase() + t.slice(1);
-      if (!/[.!?]$/.test(t)) t += ".";
+  const mapa = {
+    "ces": "cześć",
+    "ceś": "cześć",
+    "jok": "jak",
+    "jak sie": "jak się",
+    "mos": "masz",
+    "nosz": "masz",
+    "dis": "dziś",
+    "robis": "robisz"
+  };
 
-      t = t
-        .replace(/\bczesc\b/gi, "cześć")
-        .replace(/\bjak sie masz\b/gi, "jak się masz")
-        .replace(/\bnapis cos\b/gi, "napisz coś");
+  Object.keys(mapa).forEach(b => {
+    t = t.replace(new RegExp(`\\b${b}\\b`, "g"), mapa[b]);
+  });
 
-      return t;
-    }
+  t = t.charAt(0).toUpperCase() + t.slice(1);
+  if (!/[.!?]$/.test(t)) t += "?";
 
-    function odpowiedzLogicznie(text) {
-      if (/czesc|cześć/i.test(text)) {
-        return "Cześć 🙂 Jak mogę Ci pomóc?";
-      }
+  return t;
+}
 
-      if (/napisz|powiedz|opowiedz/i.test(text)) {
-        return "Jasne 🙂 Napisz proszę dokładniej, o co chodzi.";
-      }
+function odpowiedz(text) {
+  const t = text.toLowerCase();
 
-      return "Rozumiem. Opisz proszę temat trochę szerzej 🙂";
-    }
+  if (t.includes("cześć") || t.includes("hej")) {
+    return "Cześć 🙂 Mam się dobrze. A jak u Ciebie?";
+  }
 
-    function send() {
-      if (!input.value.trim()) return;
+  if (t.includes("jak się masz")) {
+    return "Dzięki, wszystko w porządku 🙂 Co u Ciebie?";
+  }
 
-      const raw = input.value;
-      const fixed = poprawTekst(raw);
-      const reply = odpowiedzLogicznie(fixed);
+  if (t.includes("co dziś robisz") || t.includes("co robisz")) {
+    return "Rozmawiam z Tobą 😄 W czym mogę pomóc?";
+  }
 
-      chat.innerHTML += `<div class="msg user">&gt; ${raw}</div>`;
-      chat.innerHTML += `<div class="msg fix">✓ Poprawiona pisownia: ${fixed}</div>`;
-      chat.innerHTML += `<div class="msg ai">🤖 ${reply}</div>`;
+  return "Rozumiem 🙂 Napisz proszę trochę więcej, a odpowiem konkretnie.";
+}
 
-      input.value = "";
-      chat.scrollTop = chat.scrollHeight;
-    }
-  </script>
+function send() {
+  if (!input.value.trim()) return;
+
+  const raw = input.value;
+  const fixed = poprawZdanie(raw);
+  const reply = odpowiedz(fixed);
+
+  chat.innerHTML += `<div class="msg user">&gt; ${raw}</div>`;
+  chat.innerHTML += `<div class="msg fix">✓ Poprawiona pisownia: ${fixed}</div>`;
+  chat.innerHTML += `<div class="msg ai">🤖 ${reply}</div>`;
+
+  input.value = "";
+  chat.scrollTop = chat.scrollHeight;
+}
+</script>
 </body>
 </html>
