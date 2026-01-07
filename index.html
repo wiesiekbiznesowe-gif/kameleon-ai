@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>Kameleon AI</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -16,79 +15,127 @@
       height: 100vh;
       margin: 0;
     }
-
     .box {
-      text-align: center;
+      width: 100%;
       max-width: 500px;
-      padding: 30px;
-      border-radius: 12px;
+      padding: 24px;
+      border-radius: 14px;
       background: #020617;
       box-shadow: 0 0 30px rgba(0,0,0,0.6);
     }
-
-    button {
-      padding: 10px 16px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      margin: 5px;
-      font-size: 14px;
+    h1 {
+      margin-top: 0;
     }
-
     .lang {
       text-align: right;
       margin-bottom: 10px;
+    }
+    button {
+      padding: 8px 14px;
+      margin: 4px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
+    .start {
+      width: 100%;
+      margin-top: 16px;
+      font-size: 16px;
+    }
+    .chat {
+      display: none;
+      margin-top: 16px;
+    }
+    .messages {
+      height: 220px;
+      overflow-y: auto;
+      background: #020617;
+      border: 1px solid #1e293b;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .user { color: #38bdf8; }
+    .ai { color: #22c55e; }
+    input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
     }
   </style>
 </head>
 
 <body>
+  <div class="box">
+    <div class="lang">
+      <button onclick="setLang('pl')">PL</button>
+      <button onclick="setLang('en')">EN</button>
+    </div>
 
-<div class="box" id="app">
-  <div class="lang">
-    <button onclick="setLang('pl')">PL</button>
-    <button onclick="setLang('en')">EN</button>
+    <h1 id="title">🦎 Kameleon AI</h1>
+    <p id="line1">Projekt wczesnego dostępu</p>
+    <p id="line2">Wersja testowa – język PL (działa)</p>
+
+    <button class="start" onclick="startApp()">START</button>
+
+    <div class="chat" id="chat">
+      <div class="messages" id="messages"></div>
+      <input id="input" placeholder="Napisz wiadomość..." onkeydown="handleEnter(event)" />
+    </div>
   </div>
 
-  <h1 id="title">🦎 Kameleon AI</h1>
-  <p id="line1">Projekt wczesnego dostępu</p>
-  <p id="line2">Wersja testowa – język PL (działa)</p>
-
-  <button onclick="startApp()">START</button>
-</div>
-
 <script>
-  function applyLang(lang) {
-    if (lang === 'pl') {
-      document.getElementById('title').innerText = '🦎 Kameleon AI';
-      document.getElementById('line1').innerText = 'Projekt wczesnego dostępu';
-      document.getElementById('line2').innerText = 'Wersja testowa – język PL (działa)';
-    } else {
-      document.getElementById('title').innerText = '🦎 Kameleon AI';
-      document.getElementById('line1').innerText = 'Early access project';
-      document.getElementById('line2').innerText = 'Test version – English (working)';
-    }
+function applyLang(lang) {
+  if (lang === 'pl') {
+    title.innerText = "🦎 Kameleon AI";
+    line1.innerText = "Projekt wczesnego dostępu";
+    line2.innerText = "Panel aplikacji – gotowy do działania";
+    input.placeholder = "Napisz wiadomość...";
+  } else {
+    title.innerText = "🦎 Kameleon AI";
+    line1.innerText = "Early access project";
+    line2.innerText = "Application panel – ready";
+    input.placeholder = "Type a message...";
   }
+}
 
-  function setLang(lang) {
-    localStorage.setItem('lang', lang);
-    applyLang(lang);
+function setLang(lang) {
+  localStorage.setItem("lang", lang);
+  applyLang(lang);
+}
+
+(function () {
+  const saved = localStorage.getItem("lang");
+  const auto = navigator.language.startsWith("pl") ? "pl" : "en";
+  applyLang(saved || auto);
+})();
+
+function startApp() {
+  document.querySelector(".start").style.display = "none";
+  document.getElementById("chat").style.display = "block";
+  addMessage("ai", "Aplikacja uruchomiona. Jestem gotowy 🚀");
+}
+
+function addMessage(type, text) {
+  const msg = document.createElement("div");
+  msg.className = type;
+  msg.innerText = (type === "user" ? "Ty: " : "AI: ") + text;
+  messages.appendChild(msg);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function handleEnter(e) {
+  if (e.key === "Enter" && input.value.trim()) {
+    const text = input.value;
+    addMessage("user", text);
+    input.value = "";
+    setTimeout(() => {
+      addMessage("ai", "Odebrałem: \"" + text + "\"");
+    }, 400);
   }
-
-  (function () {
-    const savedLang = localStorage.getItem('lang');
-    const browserLang = navigator.language.startsWith('pl') ? 'pl' : 'en';
-    applyLang(savedLang || browserLang);
-  })();
-
-  function startApp() {
-    document.getElementById('app').innerHTML = `
-      <h1>🦎 Kameleon AI</h1>
-      <p>Panel aplikacji</p>
-      <p>Tu zacznie się prawdziwe działanie 🚀</p>
-    `;
-  }
+}
 </script>
-
 </body>
 </html>
