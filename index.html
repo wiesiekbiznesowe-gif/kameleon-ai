@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kameleon AI</title>
 
 <style>
 body {
+  margin: 0;
   font-family: Arial, sans-serif;
   background: #0f172a;
   color: #e5e7eb;
@@ -14,27 +15,26 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  margin: 0;
 }
 
 .app {
   width: 100%;
-  max-width: 420px;
+  max-width: 430px;
   background: #020617;
   padding: 24px;
-  border-radius: 16px;
-  box-shadow: 0 0 40px rgba(0,0,0,0.6);
+  border-radius: 18px;
+  box-shadow: 0 0 40px rgba(0,0,0,.6);
 }
 
 h1 {
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
-p {
+.subtitle {
   text-align: center;
-  opacity: 0.8;
-  margin-top: 0;
+  opacity: .8;
+  font-size: 14px;
 }
 
 .modes {
@@ -46,11 +46,11 @@ p {
 
 .modes button {
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: none;
-  cursor: pointer;
   background: #1e293b;
   color: #e5e7eb;
+  cursor: pointer;
 }
 
 .modes button.active {
@@ -59,11 +59,10 @@ p {
 
 textarea {
   width: 100%;
-  min-height: 70px;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 12px;
-  border: none;
   font-size: 16px;
+  border: none;
   margin-top: 10px;
 }
 
@@ -72,12 +71,12 @@ button.start {
   margin-top: 12px;
   padding: 14px;
   font-size: 18px;
-  font-weight: bold;
-  border-radius: 12px;
+  border-radius: 14px;
   border: none;
-  cursor: pointer;
   background: #e5e7eb;
   color: #020617;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .chat {
@@ -91,12 +90,15 @@ button.start {
 <body>
 <div class="app">
   <h1>🦎 Kameleon AI</h1>
-  <p>Projekt wczesnego dostępu<br>Panel aplikacji – gotowy do działania</p>
+  <div class="subtitle">
+    Projekt wczesnego dostępu<br>
+    Panel aplikacji – gotowy do działania
+  </div>
 
   <div class="modes">
-    <button onclick="setMode('AGENT')" class="active">🧠 Agent</button>
-    <button onclick="setMode('CHAT')">💬 Chat</button>
-    <button onclick="setMode('HYBRYDA')">🔀 Hybryda</button>
+    <button class="active">🧠 Agent</button>
+    <button>💬 Chat</button>
+    <button>🔀 Hybryda</button>
   </div>
 
   <textarea id="input" placeholder="Napisz wiadomość..."></textarea>
@@ -106,27 +108,42 @@ button.start {
 </div>
 
 <script>
-let mode = "AGENT";
+function poprawZdanie(text) {
+  let t = text.toLowerCase().trim();
 
-function setMode(m) {
-  mode = m;
-  document.querySelectorAll(".modes button").forEach(b => b.classList.remove("active"));
-  event.target.classList.add("active");
-}
+  const mapa = {
+    "czesc": "cześć",
+    "jzk": "jak",
+    "jk": "jak",
+    "jak": "jak",
+    "sie": "się",
+    "sje": "się",
+    "mase": "masz",
+    "mos": "masz",
+    "mas": "masz",
+    "jest se": "jest",
+    "jest se mos": "jest",
+  };
 
-function poprawPisownie(text) {
-  let t = text.toLowerCase();
+  Object.keys(mapa).forEach(bledne => {
+    const reg = new RegExp("\\b" + bledne + "\\b", "g");
+    t = t.replace(reg, mapa[bledne]);
+  });
 
-  t = t
-    .replace(/\bczesc\b/g, "cześć")
-    .replace(/\bsie\b/g, "się")
-    .replace(/\bnie wiem\b/g, "nie wiem")
-    .replace(/\bjak\b/g, "jak")
-    .replace(/\bmasz\b/g, "masz")
-    .replace(/\bjestem\b/g, "jestem");
+  // Logika sensu
+  if (t.startsWith("cześć") && t.includes("jak się masz")) {
+    t = "cześć, jak się masz";
+  }
 
+  // Wielka litera
   t = t.charAt(0).toUpperCase() + t.slice(1);
-  if (!/[.!?]$/.test(t)) t += ".";
+
+  // Znak zapytania
+  if (t.includes("jak się masz") && !t.endsWith("?")) {
+    t += "?";
+  } else if (!/[.!?]$/.test(t)) {
+    t += ".";
+  }
 
   return t;
 }
@@ -134,10 +151,11 @@ function poprawPisownie(text) {
 function process() {
   const input = document.getElementById("input");
   const chat = document.getElementById("chat");
+
   const original = input.value.trim();
   if (!original) return;
 
-  const corrected = poprawPisownie(original);
+  const corrected = poprawZdanie(original);
 
   chat.innerText +=
     "> " + original + "\n" +
