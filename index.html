@@ -1,154 +1,114 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Kameleon AI</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kameleon AI</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(180deg, #0b1220, #0f172a);
-      color: #e5e7eb;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    .app {
-      width: 100%;
-      max-width: 420px;
-      background: #020617;
-      border-radius: 18px;
-      padding: 20px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 12px;
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 90px;
-      border-radius: 12px;
-      border: none;
-      padding: 12px;
-      font-size: 16px;
-      resize: none;
-    }
-
-    button {
-      width: 100%;
-      margin-top: 10px;
-      padding: 14px;
-      border-radius: 12px;
-      border: none;
-      font-size: 16px;
-      font-weight: bold;
-      background: #2563eb;
-      color: white;
-      cursor: pointer;
-    }
-
-    .chat {
-      margin-top: 16px;
-      max-height: 320px;
-      overflow-y: auto;
-      font-size: 14px;
-    }
-
-    .msg { margin-top: 10px; }
-    .user { color: #93c5fd; }
-    .fix { color: #22c55e; }
-    .ai  { color: #a5b4fc; }
-  </style>
+<style>
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:linear-gradient(180deg,#0b1220,#0f172a);
+  color:#e5e7eb;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+.app{
+  width:100%;
+  max-width:420px;
+  background:#020617;
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 20px 50px rgba(0,0,0,.6);
+}
+h1{text-align:center;margin-bottom:12px;}
+textarea{
+  width:100%;
+  min-height:90px;
+  border-radius:12px;
+  border:none;
+  padding:12px;
+  font-size:16px;
+}
+button{
+  width:100%;
+  margin-top:10px;
+  padding:14px;
+  border-radius:12px;
+  border:none;
+  font-size:16px;
+  font-weight:bold;
+  background:#2563eb;
+  color:#fff;
+}
+.chat{
+  margin-top:16px;
+  max-height:320px;
+  overflow-y:auto;
+  font-size:14px;
+}
+.msg{margin-top:10px;}
+.user{color:#93c5fd;}
+.fix{color:#22c55e;}
+.ai{color:#a5b4fc;}
+</style>
 </head>
 
 <body>
 <div class="app">
-  <h1>🦎 Kameleon AI</h1>
-  <textarea id="input" placeholder="Napisz wiadomość..."></textarea>
-  <button onclick="send()">START</button>
-  <div id="chat" class="chat"></div>
+<h1>🦎 Kameleon AI</h1>
+<textarea id="input" placeholder="Napisz wiadomość..."></textarea>
+<button onclick="send()">START</button>
+<div id="chat" class="chat"></div>
 </div>
 
 <script>
-const input = document.getElementById("input");
-const chat = document.getElementById("chat");
+const input=document.getElementById("input");
+const chat=document.getElementById("chat");
 
-function poprawZdanie(text) {
-  let t = text.toLowerCase().trim();
+function popraw(text){
+let t=text.toLowerCase().trim();
 
-  const mapa = {
-    "ces": "cześć",
-    "ceś": "cześć",
-    "jag": "jak",
-    "jok": "jak",
-    "sie": "się",
-    "cuje": "czuję",
-    "cujesz": "czujesz",
-    "mos": "masz",
-    "nosz": "masz",
-    "dis": "dziś",
-    "robis": "robisz",
-    "gdes": "gdzieś",
-    "wyskoxymy": "wyskoczymy",
-    "rzzen": "razem"
-  };
+const mapa={
+"ces":"cześć","ceś":"cześć","ps":"po prostu",
+"dis":"dziś","jemy":"jemy","robimy":"robimy",
+"colko":"co","pscolko":"co","olka":"olka",
+"siebie":"sobie","illota":"lato","lato":"lato"
+};
 
-  Object.keys(mapa).forEach(b => {
-    t = t.replace(new RegExp(`\\b${b}\\b`, "g"), mapa[b]);
-  });
+Object.keys(mapa).forEach(k=>{
+t=t.replace(new RegExp("\\b"+k+"\\b","g"),mapa[k]);
+});
 
-  t = t.charAt(0).toUpperCase() + t.slice(1);
-  if (!/[.!?]$/.test(t)) t += "?";
-  return t;
+t=t.charAt(0).toUpperCase()+t.slice(1);
+if(!/[.!?]$/.test(t))t+="?";
+return t;
 }
 
-function odpowiedz(text) {
-  const t = text.toLowerCase();
+function odpowiedz(t){
+t=t.toLowerCase();
 
-  if (t.includes("cześć") || t.includes("hej")) {
-    return "Cześć 🙂 Mam się dobrze. A jak u Ciebie?";
-  }
-
-  if (t.includes("jak się masz")) {
-    return "Czuję się w porządku 🙂 A jak u Ciebie?";
-  }
-
-  if (t.includes("jak się czujesz")) {
-    return "Dzięki za pytanie 🙂 Czuję się spokojnie. A Ty?";
-  }
-
-  if (
-    t.includes("wyskoczymy") ||
-    t.includes("spotkamy") ||
-    t.includes("chodźmy") ||
-    t.includes("razem")
-  ) {
-    return "Brzmi fajnie 🙂 Masz coś konkretnego na myśli?";
-  }
-
-  return "Rozumiem 🙂 Jeśli chcesz, napisz trochę więcej.";
+if(t.includes("cześć")) return "Cześć 🙂 Jak mija dzień?";
+if(t.includes("co dziś jemy")) return "Możemy coś lekkiego 🍝🥗 A masz ochotę na coś konkretnego?";
+if(t.includes("co dziś robimy")||t.includes("co dziś")) return "Możemy coś zaplanować 🙂 Spacer, film czy chill?";
+if(t.includes("lato")) return "Lato brzmi super ☀️ Masz coś konkretnego na myśli?";
+return "Rozumiem 🙂 Napisz trochę więcej, a odpowiem konkretnie.";
 }
 
-function send() {
-  if (!input.value.trim()) return;
+function send(){
+if(!input.value.trim())return;
+const raw=input.value;
+const fixed=popraw(raw);
+const reply=odpowiedz(fixed);
 
-  const raw = input.value;
-  const fixed = poprawZdanie(raw);
-  const reply = odpowiedz(fixed);
-
-  chat.innerHTML += `<div class="msg user">&gt; ${raw}</div>`;
-  chat.innerHTML += `<div class="msg fix">✓ Poprawiona pisownia: ${fixed}</div>`;
-  chat.innerHTML += `<div class="msg ai">🤖 ${reply}</div>`;
-
-  input.value = "";
-  chat.scrollTop = chat.scrollHeight;
+chat.innerHTML+=`<div class="msg user">&gt; ${raw}</div>`;
+chat.innerHTML+=`<div class="msg fix">✓ Poprawiona pisownia: ${fixed}</div>`;
+chat.innerHTML+=`<div class="msg ai">🤖 ${reply}</div>`;
+input.value="";
+chat.scrollTop=chat.scrollHeight;
 }
 </script>
 </body>
