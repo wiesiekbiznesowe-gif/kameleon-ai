@@ -53,6 +53,7 @@ font-size:14px;
 .msg{margin-top:10px;}
 .user{color:#93c5fd;}
 .ai{color:#a5b4fc;}
+.error{color:#ef4444;}
 </style>
 </head>
 
@@ -65,17 +66,36 @@ font-size:14px;
 </div>
 
 <script>
-const input=document.getElementById("input");
-const chat=document.getElementById("chat");
+const input = document.getElementById("input");
+const chat = document.getElementById("chat");
 
-function send(){
-const text=input.value.trim();
-if(!text)return;
+async function send(){
+  const text = input.value.trim();
+  if(!text) return;
 
-chat.innerHTML+=`<div class="msg user">&gt; ${text}</div>`;
-chat.innerHTML+=`<div class="msg ai">🤖 Działa. Backend podłączymy w kolejnym kroku.</div>`;
-input.value="";
-chat.scrollTop=chat.scrollHeight;
+  chat.innerHTML += `<div class="msg user">&gt; ${text}</div>`;
+  input.value = "";
+  chat.scrollTop = chat.scrollHeight;
+
+  try{
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text })
+    });
+
+    const data = await res.json();
+
+    if(!res.ok || !data.reply){
+      throw new Error(data.error || "Brak odpowiedzi AI");
+    }
+
+    chat.innerHTML += `<div class="msg ai">🤖 ${data.reply}</div>`;
+  }catch(err){
+    chat.innerHTML += `<div class="msg error">❌ ${err.message}</div>`;
+  }
+
+  chat.scrollTop = chat.scrollHeight;
 }
 </script>
 </body>
