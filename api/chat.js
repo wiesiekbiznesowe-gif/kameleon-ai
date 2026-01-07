@@ -6,27 +6,27 @@ export default async function handler(req, res) {
   try {
     const { message } = req.body;
 
-    /* 1️⃣ PODSTAWOWA WALIDACJA */
+    /* 1️⃣ WALIDACJA */
     if (!message || typeof message !== "string") {
-      return res.status(400).json({ error: "Brak wiadomości" });
+      return res.status(400).json({ reply: "Nie otrzymałem wiadomości." });
     }
 
-    /* 2️⃣ LIMIT DŁUGOŚCI (ANTI-SPAM / ANTI-KOSZT) */
     if (message.length > 300) {
       return res.status(400).json({
-        error: "Wiadomość jest za długa (max 300 znaków)"
+        reply: "Wiadomość jest za długa. Spróbuj krócej 🙂"
       });
     }
 
-    /* 3️⃣ PROSTE BLOKADY SPAMU */
-    const forbidden = ["http://", "https://", "<script", "SELECT *"];
-    if (forbidden.some(f => message.toLowerCase().includes(f))) {
-      return res.status(400).json({
-        error: "Niedozwolona treść"
+    /* 2️⃣ PROSTA FILTRACJA WULGARYZMÓW */
+    const vulgar = ["kurwa", "chuj", "pierd", "sra", "gówno", "jeb"];
+    if (vulgar.some(v => message.toLowerCase().includes(v))) {
+      return res.status(200).json({
+        reply:
+          "Rozumiem emocje 🙂 Spróbuj opisać sytuację trochę spokojniej, a postaram się pomóc."
       });
     }
 
-    /* 4️⃣ WYWOŁANIE OPENAI */
+    /* 3️⃣ OPENAI */
     const response = await fetch(
       "https://api.openai.com/v1/chat/completions",
       {
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
             {
               role: "system",
               content:
-                "Jesteś inteligentnym, rzeczowym asystentem AI. Odpowiadasz naturalnie, bez poprawiania pisowni użytkownika."
+                "Jesteś pomocnym, rzeczowym asystentem AI. Odpowiadasz spokojnie i konkretnie."
             },
             {
               role: "user",
@@ -57,7 +57,10 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!data.choices || !data.choices[0]) {
-      return res.status(500).json({ error: "Brak odpowiedzi AI" });
+      return res.status(200).json({
+        reply:
+          "Nie mogę na to teraz odpowiedzieć, ale jeśli sformułujesz pytanie inaczej – spróbujmy ponownie 🙂"
+      });
     }
 
     return res.status(200).json({
@@ -65,9 +68,8 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    return res.status(500).json({
-      error: "Błąd serwera",
-      details: error.message
+    return res.status(200).json({
+      reply: "Wystąpił błąd techniczny. Spróbuj za chwilę."
     });
   }
 }
