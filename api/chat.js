@@ -22,22 +22,21 @@ export default async function handler(req, res) {
           {
             role: "system",
             content:
-              "Jesteś inteligentnym, pomocnym asystentem. Odpowiadasz po polsku, jasno i naturalnie."
+              "Jesteś inteligentnym, rzeczowym asystentem AI. Odpowiadasz pełnymi zdaniami, konkretnie i pomocnie. Nie poprawiasz pisowni użytkownika, tylko realnie odpowiadasz na jego pytania."
           },
           {
             role: "user",
             content: message
           }
         ],
-        temperature: 0.4,
-        max_tokens: 300
+        temperature: 0.7
       })
     });
 
     const data = await response.json();
 
     if (!data.choices || !data.choices[0]) {
-      return res.status(500).json({ error: "Błąd odpowiedzi AI" });
+      return res.status(500).json({ error: "Brak odpowiedzi AI" });
     }
 
     return res.status(200).json({
