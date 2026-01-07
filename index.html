@@ -69,14 +69,12 @@
 </head>
 
 <body>
-  <div class="app">
-    <h1>🦎 Kameleon AI</h1>
-
-    <textarea id="input" placeholder="Napisz wiadomość..."></textarea>
-    <button onclick="send()">START</button>
-
-    <div id="chat" class="chat"></div>
-  </div>
+<div class="app">
+  <h1>🦎 Kameleon AI</h1>
+  <textarea id="input" placeholder="Napisz wiadomość..."></textarea>
+  <button onclick="send()">START</button>
+  <div id="chat" class="chat"></div>
+</div>
 
 <script>
 const input = document.getElementById("input");
@@ -88,8 +86,11 @@ function poprawZdanie(text) {
   const mapa = {
     "ces": "cześć",
     "ceś": "cześć",
+    "jag": "jak",
     "jok": "jak",
-    "jak sie": "jak się",
+    "sie": "się",
+    "cuje": "czuję",
+    "cujesz": "czujesz",
     "mos": "masz",
     "nosz": "masz",
     "dis": "dziś",
@@ -102,7 +103,6 @@ function poprawZdanie(text) {
 
   t = t.charAt(0).toUpperCase() + t.slice(1);
   if (!/[.!?]$/.test(t)) t += "?";
-
   return t;
 }
 
@@ -114,14 +114,18 @@ function odpowiedz(text) {
   }
 
   if (t.includes("jak się masz")) {
-    return "Dzięki, wszystko w porządku 🙂 Co u Ciebie?";
+    return "Czuję się w porządku 🙂 Dzięki za pytanie. A Ty jak się czujesz?";
   }
 
-  if (t.includes("co dziś robisz") || t.includes("co robisz")) {
-    return "Rozmawiam z Tobą 😄 W czym mogę pomóc?";
+  if (t.includes("jak się czujesz")) {
+    return "Dzięki, że pytasz 🙂 Czuję się stabilnie i spokojnie. A u Ciebie wszystko okej?";
   }
 
-  return "Rozumiem 🙂 Napisz proszę trochę więcej, a odpowiem konkretnie.";
+  if (t.includes("co robisz") || t.includes("co dziś robisz")) {
+    return "Jestem tu dla Ciebie 😄 W czym mogę pomóc?";
+  }
+
+  return "Rozumiem 🙂 Jeśli chcesz, opisz to trochę dokładniej.";
 }
 
 function send() {
