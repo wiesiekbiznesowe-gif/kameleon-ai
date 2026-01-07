@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kameleon AI</title>
 
 <style>
@@ -21,11 +21,11 @@ body{
   max-width:420px;
   background:#020617;
   border-radius:18px;
-  padding:28px;
+  padding:26px;
   text-align:center;
   box-shadow:0 30px 60px rgba(0,0,0,.6);
 }
-.lang button, .mode button{
+button{
   padding:10px 16px;
   margin:4px;
   border:none;
@@ -37,27 +37,25 @@ body{
 .start{
   width:100%;
   padding:14px;
-  margin-top:14px;
   font-size:18px;
-  border-radius:12px;
-  border:none;
+  margin-top:12px;
   background:#e5e7eb;
-  cursor:pointer;
 }
 input{
   width:100%;
-  margin-top:14px;
+  margin-top:12px;
   padding:12px;
   border-radius:10px;
   border:none;
 }
 .response{
   margin-top:14px;
-  min-height:60px;
   background:#020617;
   padding:12px;
   border-radius:10px;
+  min-height:80px;
   text-align:left;
+  white-space:pre-line;
 }
 </style>
 </head>
@@ -66,24 +64,24 @@ input{
 <div class="box">
 
 <div class="lang">
-  <button onclick="setLang('pl')">PL</button>
-  <button onclick="setLang('en')">EN</button>
+<button onclick="setLang('pl')">PL</button>
+<button onclick="setLang('en')">EN</button>
 </div>
 
-<h1 id="title">🦎 Kameleon AI</h1>
+<h2 id="title">🦎 Kameleon AI</h2>
 <p id="subtitle">Projekt wczesnego dostępu</p>
 <p id="status">Panel aplikacji – gotowy do działania</p>
 
 <div class="mode">
-  <button onclick="setMode('agent')">🧠 Agent</button>
-  <button onclick="setMode('chat')">💬 Chat</button>
-  <button onclick="setMode('hybryda')">🔀 Hybryda</button>
+<button onclick="setMode('agent')">🧠 Agent</button>
+<button onclick="setMode('chat')">💬 Chat</button>
+<button onclick="setMode('hybryda')">🔀 Hybryda</button>
 </div>
 
-<button class="start" onclick="startApp()">START</button>
+<button class="start" onclick="startAI()">START</button>
 
-<input id="userInput" placeholder="Napisz wiadomość…" onkeydown="if(event.key==='Enter') processInput()">
-<div class="response" id="response"></div>
+<input id="input" placeholder="Napisz wiadomość…" onkeydown="if(event.key==='Enter') send()">
+<div class="response" id="out"></div>
 
 </div>
 
@@ -93,56 +91,50 @@ let mode='agent';
 
 function setLang(l){
   lang=l;
-  localStorage.setItem('lang',l);
   render();
 }
 
 function setMode(m){
   mode=m;
-  localStorage.setItem('mode',m);
-  document.getElementById('response').innerText=
-    (lang==='pl'?'Tryb: ':'Mode: ')+m.toUpperCase();
+  out.innerText=(lang==='pl'?'Tryb: ':'Mode: ')+m.toUpperCase();
 }
 
-function startApp(){
-  document.getElementById('response').innerText=
-    lang==='pl'?'AI uruchomiona 🚀':'AI started 🚀';
+function startAI(){
+  out.innerText=lang==='pl'
+    ?'AI uruchomiona. Czekam na polecenie 🚀'
+    :'AI started. Awaiting input 🚀';
 }
 
-function processInput(){
-  const input=document.getElementById('userInput').value.trim();
-  if(!input) return;
+function send(){
+  const text=input.value.trim();
+  if(!text) return;
 
-  let out='';
-  if(mode==='agent') out='🧠 Agent: wykonuję zadanie';
-  if(mode==='chat') out='💬 Chat: odpowiadam';
-  if(mode==='hybryda') out='🔀 Hybryda: analizuję i działam';
+  let reply='';
+  if(mode==='agent'){
+    reply='🧠 Analiza zadania...\nZadanie przyjęte. Wykonuję krok po kroku.';
+  }
+  if(mode==='chat'){
+    reply='💬 Rozumiem.\nOto odpowiedź:\n'+text;
+  }
+  if(mode==='hybryda'){
+    reply='🔀 Analiza + rozmowa:\nIntencja: OK\nOdpowiedź wygenerowana.';
+  }
 
-  document.getElementById('response').innerText=out+'\n> '+input;
-  document.getElementById('userInput').value='';
+  out.innerText='> '+text+'\n\n'+reply;
+  input.value='';
 }
 
 function render(){
   if(lang==='pl'){
-    title.innerText='🦎 Kameleon AI';
     subtitle.innerText='Projekt wczesnego dostępu';
     status.innerText='Panel aplikacji – gotowy do działania';
-    userInput.placeholder='Napisz wiadomość…';
+    input.placeholder='Napisz wiadomość…';
   }else{
-    title.innerText='🦎 Kameleon AI';
     subtitle.innerText='Early access project';
     status.innerText='Application panel – ready';
-    userInput.placeholder='Type a message…';
+    input.placeholder='Type a message…';
   }
 }
-
-(function init(){
-  const l=localStorage.getItem('lang');
-  const m=localStorage.getItem('mode');
-  if(l) lang=l;
-  if(m) mode=m;
-  render();
-})();
 </script>
 
 </body>
