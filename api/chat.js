@@ -4,11 +4,28 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages } = req.body;
+    const { message, history } = req.body;
 
-    if (!Array.isArray(messages) || messages.length === 0) {
-      return res.status(400).json({ error: "Brak kontekstu rozmowy" });
+    if (!message || typeof message !== "string") {
+      return res.status(400).json({ error: "Brak wiadomości" });
     }
+
+    const messages = [
+      {
+        role: "system",
+        content:
+          "Jesteś inteligentnym, konkretnym asystentem AI. " +
+          "Pamiętasz kontekst rozmowy. " +
+          "Jeśli użytkownik pyta 'gdzie go obejrzę', odnosisz się do ostatniego omawianego filmu. " +
+          "Nie pytasz w kółko o gatunek, jeśli już padł. " +
+          "Odpowiadasz naturalnie, po ludzku, po polsku."
+      },
+      ...(Array.isArray(history) ? history : []),
+      {
+        role: "user",
+        content: message
+      }
+    ];
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -18,15 +35,8 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content:
-              "Jesteś rozmownym, inteligentnym asystentem. Pamiętasz kontekst rozmowy. Odpowiadasz naturalnie, po ludzku, bez moralizowania i bez regulaminowych formułek."
-          },
-          ...messages
-        ],
-        temperature: 0.8
+        messages,
+        temperature: 0.7
       })
     });
 
@@ -40,10 +50,10 @@ export default async function handler(req, res) {
       reply: data.choices[0].message.content
     });
 
-  } catch (error) {
+  } catch (err) {
     return res.status(500).json({
       error: "Błąd serwera",
-      details: error.message
+      details: err.message
     });
   }
 }
